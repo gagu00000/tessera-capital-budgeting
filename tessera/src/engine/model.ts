@@ -17,6 +17,7 @@ import type {
   TerminalCashFlowBreakdown,
   BreakEvenResult,
   ConsistencyCheck,
+  IrrResult,
 } from './types';
 import { npv, pvOfInflows, pvOfOutflows } from './npv';
 import { irr } from './irr';
@@ -95,7 +96,31 @@ export const CAPITAL_INTENSITY_FLOOR = 0.25;
 // Main model
 // ---------------------------------------------------------------------------
 
-export function computeModel(inputs: ProjectInputs, skipBreakEven = false): ModelResult {
+export interface ComputeOptions {
+  /** Skip the break-even solvers, which recursively re-evaluate the model. */
+  skipBreakEven?: boolean;
+  /**
+   * Skip IRR root-finding and the consistency checks that depend on it. Used by
+   * the sensitivity sweeps, which evaluate the model roughly 1,800 times per
+   * tornado and need only NPV from each pass.
+   */
+  skipIrr?: boolean;
+}
+
+const EMPTY_IRR: IrrResult = {
+  value: null,
+  converged: false,
+  roots: [],
+  signChanges: 0,
+  isConventional: false,
+  residual: null,
+};
+
+export function computeModel(
+  inputs: ProjectInputs,
+  options: ComputeOptions = {},
+): ModelResult {
+  const { skipBreakEven = false, skipIrr = false } = options;
   const N = inputs.projectLifeYears;
   const H = availableHoursPerYear(inputs);
   const dep = computeDepreciation(inputs);
@@ -276,7 +301,7 @@ export function computeModel(inputs: ProjectInputs, skipBreakEven = false): Mode
 
   // --- Metrics -------------------------------------------------------------
   const npvValue = npv(inputs.wacc, cashFlows);
-  const irrResult = irr(cashFlows);
+  const irrResult = skipIrr ? EMPTY_IRR : irr(cashFlows);
   const mirrValue = mirr(cashFlows, inputs.financeRate, inputs.reinvestmentRate);
   const pvIn = pvOfInflows(inputs.wacc, cashFlows);
   const pvOut = pvOfOutflows(inputs.wacc, cashFlows);
@@ -323,8 +348,13 @@ export function computeModel(inputs: ProjectInputs, skipBreakEven = false): Mode
     allChecksPass: true,
   };
 
-  result.checks = runConsistencyChecks(result, inputs, dep, totalWorkingCapitalInvested);
-  result.allChecksPass = result.checks.every((c) => c.passed);
+  // The consistency checks exist to validate what is shown to the user. During a
+  // sensitivity sweep nothing is shown, and several checks re-run the very root
+  // finding that was just skipped, so they are omitted with it.
+  if (!skipIrr) {
+    result.checks = runConsistencyChecks(result, inputs, dep, totalWorkingCapitalInvested);
+    result.allChecksPass = result.checks.every((c) => c.passed);
+  }
 
   return result;
 }
@@ -377,7 +407,7 @@ function computeBreakEven(
   const npvAtUtilisationFactor = (k: number): number =>
     computeModel(
       { ...inputs, utilisationByYear: inputs.utilisationByYear.map((u) => u * k) },
-      true,
+      { skipBreakEven: true, skipIrr: true },
     ).npv;
 
   const utilisationFactor = solveForZero(npvAtUtilisationFactor, 0.01, 5);
@@ -390,7 +420,7 @@ function computeBreakEven(
         internalRateYear1: inputs.internalRateYear1 * m,
         externalRateYear1: inputs.externalRateYear1 * m,
       },
-      true,
+      { skipBreakEven: true, skipIrr: true },
     ).npv;
 
   const rateFactor = solveForZero(npvAtRateFactor, 0.01, 5);

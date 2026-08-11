@@ -1,4 +1,8 @@
 
+> tessera@0.0.0 report
+> vite-node scripts/report.ts
+
+
 ================ WACC DERIVATION ================
   Levered beta (Hamada)      1.7375
   Cost of equity (CAPM)           16.03%
