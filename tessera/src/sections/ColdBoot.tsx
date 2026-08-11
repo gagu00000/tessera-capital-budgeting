@@ -27,8 +27,13 @@ export function ColdBoot() {
       {/* The lattice — one tile per GPU. Lit tiles show planned peak utilisation,
           so the hero is displaying the model rather than ornament. */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        {/* Held at low opacity so the type reads over it. Dimming the whole
+            lattice uniformly preserves the RELATIVE contrast between lit and
+            unlit tiles, which is the thing the motif is actually communicating —
+            unlike the radial vignette this replaced, which dimmed only the
+            tiles that happened to sit in the middle. */}
         <div
-          className="grid gap-2.5 md:gap-3"
+          className="grid gap-2.5 opacity-[0.42] md:gap-3"
           style={{ gridTemplateColumns: 'repeat(8, minmax(0, 1fr))' }}
         >
           {Array.from({ length: TILE_COUNT }).map((_, i) => {
@@ -59,16 +64,16 @@ export function ColdBoot() {
         </div>
       </div>
 
-      {/* Sits between the lattice and the title so the type stays legible while
-          the lattice keeps its presence at the edges. */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(40rem 24rem at 50% 48%, rgb(7 8 12 / 0.86) 16%, rgb(7 8 12 / 0.55) 44%, transparent 74%)',
-        }}
-      />
+      {/* Deliberately NO vignette behind the lattice. An earlier version darkened
+          the centre to protect the type, which dimmed lit tiles that happened to
+          sit in the middle and made the lit/unlit split unreadable — the tiles
+          are carrying data, so anything that obscures them is a bug. Legibility
+          is handled by a shadow on the type itself instead. */}
 
+      {/* No text-shadow here: the title is painted with background-clip:text over a
+          transparent fill, so a shadow shows through the letterforms instead of
+          sitting behind them and turns the gradient muddy. Legibility comes from
+          holding the lattice at low opacity instead. */}
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         <motion.p
           initial={{ opacity: 0, y: 12 }}
@@ -130,6 +135,23 @@ export function ColdBoot() {
           <HeroStat label="IRR" value={percent(model.irr.value)} tone="photon" />
           <HeroStat label="Hurdle" value={percent(model.inputs.wacc)} tone="iris" />
         </motion.div>
+
+        {/* States what the lattice is showing, so the reader can tell the dark
+            tiles apart from decoration. */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.7 }}
+          className="mt-8 text-[0.72rem] leading-relaxed text-slate-500"
+        >
+          <span className="numeric" style={{ color: TONE_HEX.photon }}>
+            {litTiles}
+          </span>{' '}
+          of {TILE_COUNT} tiles lit — one per GPU, showing peak utilisation of{' '}
+          <span className="numeric">{percent(peakUtilisation, 0)}</span>. The{' '}
+          {TILE_COUNT - litTiles} dark tiles are capacity that is never sold, in a market
+          where the price of that capacity falls every year.
+        </motion.p>
 
         <motion.a
           href="#decision"
