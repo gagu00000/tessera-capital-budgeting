@@ -1,0 +1,791 @@
+{
+  "generatedAt": "2026-08-11T22:49:54.261Z",
+  "wacc": 0.128317,
+  "waccBreakdown": {
+    "debtWeight": 0.30000000000000004,
+    "debtToEquity": 0.42857142857142866,
+    "leveredBeta": 1.7375000000000003,
+    "costOfEquity": 0.1603,
+    "afterTaxCostOfDebt": 0.05369,
+    "wacc": 0.128317
+  },
+  "alternatives": [
+    {
+      "id": "A",
+      "label": "Own — Full 32-GPU Cluster",
+      "projectLifeYears": 5,
+      "cashFlows": [
+        -7060000,
+        1910094.1222400002,
+        2005545.5597759997,
+        1887957.9749558398,
+        1564544.819401653,
+        2671285.6058547515
+      ],
+      "initial": {
+        "equipmentCost": 5860000,
+        "installTransportCost": 700000,
+        "capitalisedCost": 6560000,
+        "workingCapital": 500000,
+        "total": -7060000,
+        "sunkCostExcluded": 120000
+      },
+      "terminal": {
+        "salvageValue": 1054800,
+        "closingBookValue": 1054800,
+        "gainOrLossOnDisposal": 0,
+        "taxOnDisposal": 0,
+        "afterTaxSalvage": 1054800,
+        "workingCapitalRecovered": 500000,
+        "total": 1554800
+      },
+      "depreciableBase": 6560000,
+      "annualDepreciation": 1101040,
+      "salvageValue": 1054800,
+      "npv": -51476.29055233835,
+      "irr": 0.12542297600974867,
+      "irrRoots": [
+        0.12542297600974867
+      ],
+      "irrIsConventional": true,
+      "irrSignChanges": 1,
+      "mirr": 0.1266668098096806,
+      "profitabilityIndex": 0.9927087407149662,
+      "paybackPeriod": 3.803046565012219,
+      "discountedPaybackPeriod": null,
+      "arr": 0.1565072270960889,
+      "arrInitialBasis": 0.08440306181949701,
+      "equivalentAnnualAnnuity": -14575.405548441913,
+      "pvOfInflows": 7008523.709447661,
+      "pvOfOutflows": 7060000,
+      "capitalIntensity": 2.1961299691455536,
+      "ratioMetricsMeaningful": true,
+      "breakEven": {
+        "accountingByYear": [
+          0.45903016975919614,
+          0.5671150905600469,
+          0.6289239257978325,
+          0.6978649344694628,
+          0.7748280558788043
+        ],
+        "cashByYear": [
+          0.22252988052190284,
+          0.30914188729364245,
+          0.3474379466709424,
+          0.39061523336402953,
+          0.43932740657026864
+        ],
+        "accountingAverage": 0.6255524352930685,
+        "cashAverage": 0.34181047088415717,
+        "npvBreakEvenUtilisationFactor": 1.0051728143160736,
+        "npvBreakEvenPeakUtilisation": 0.8543968921686625,
+        "npvBreakEvenBlendedRate": 18.088912541096015,
+        "contributionMarginYear1": 17.3,
+        "contributionMarginRatioYear1": 0.9611111111111111
+      },
+      "years": [
+        {
+          "year": 1,
+          "utilisation": 0.65,
+          "utilisedHours": 174919.68000000002,
+          "revenue": 3148554.24,
+          "variableCost": 122443.77600000001,
+          "fixedCost": 1036000,
+          "depreciation": 1101040,
+          "ebit": 889070.4640000002,
+          "tax": 80016.34176000001,
+          "netIncome": 809054.1222400002,
+          "operatingCashFlow": 1910094.1222400002,
+          "netCashFlow": 1910094.1222400002,
+          "presentValue": 1692870.1085244662
+        },
+        {
+          "year": 2,
+          "utilisation": 0.8,
+          "utilisedHours": 215285.76,
+          "revenue": 3565132.1856,
+          "variableCost": 150700.032,
+          "fixedCost": 1319430,
+          "depreciation": 1101040,
+          "ebit": 993962.1535999998,
+          "tax": 89456.59382399998,
+          "netIncome": 904505.5597759999,
+          "operatingCashFlow": 2005545.5597759997,
+          "netCashFlow": 2005545.5597759997,
+          "presentValue": 1575325.3769138695
+        },
+        {
+          "year": 3,
+          "utilisation": 0.85,
+          "utilisedHours": 228741.12,
+          "revenue": 3484916.7114239996,
+          "variableCost": 160118.78399999999,
+          "fixedCost": 1359012.9,
+          "depreciation": 1101040,
+          "ebit": 864745.0274239997,
+          "tax": 77827.05246815998,
+          "netIncome": 786917.9749558398,
+          "operatingCashFlow": 1887957.9749558398,
+          "netCashFlow": 1887957.9749558398,
+          "presentValue": 1314313.3770809814
+        },
+        {
+          "year": 4,
+          "utilisation": 0.84,
+          "utilisedHours": 226050.048,
+          "revenue": 3168404.275986432,
+          "variableCost": 158235.0336,
+          "fixedCost": 1399783.287,
+          "depreciation": 1101040,
+          "ebit": 509345.9553864319,
+          "tax": 45841.13598477887,
+          "netIncome": 463504.819401653,
+          "operatingCashFlow": 1564544.819401653,
+          "netCashFlow": 1564544.819401653,
+          "presentValue": 965302.6147479702
+        },
+        {
+          "year": 5,
+          "utilisation": 0.78,
+          "utilisedHours": 209903.616,
+          "revenue": 2706722.5100569804,
+          "variableCost": 146932.5312,
+          "fixedCost": 1441776.7856100004,
+          "depreciation": 1101040,
+          "ebit": 16973.193246979965,
+          "tax": 1527.5873922281967,
+          "netIncome": 15445.605854751768,
+          "operatingCashFlow": 1116485.6058547518,
+          "netCashFlow": 2671285.6058547515,
+          "presentValue": 1460712.232180374
+        }
+      ],
+      "checks": [
+        {
+          "name": "NPV(IRR) = 0",
+          "passed": true,
+          "detail": "The returned IRR is substituted back into the NPV formula; the result must be zero.",
+          "delta": 1.0221265256404877e-7,
+          "tolerance": 0.017099428082228245
+        },
+        {
+          "name": "PI identity",
+          "passed": true,
+          "detail": "Profitability Index computed as PV(inflows)/PV(outflows) must equal 1 + NPV/|PV(outflows)|.",
+          "delta": 1.1102230246251565e-16,
+          "tolerance": 1e-9
+        },
+        {
+          "name": "MIRR two ways",
+          "passed": true,
+          "detail": "Closed-form MIRR must equal the IRR of the collapsed [-PV_neg, ..., FV_pos] series.",
+          "delta": 4.884981308350689e-15,
+          "tolerance": 1e-8
+        },
+        {
+          "name": "Depreciation reconciliation",
+          "passed": true,
+          "detail": "Sum of annual depreciation must equal capitalised cost less closing book value.",
+          "delta": 0,
+          "tolerance": 0.000001
+        },
+        {
+          "name": "Working capital recovery",
+          "passed": true,
+          "detail": "All working capital committed over the project life must be released at the end.",
+          "delta": 0,
+          "tolerance": 0.000001
+        },
+        {
+          "name": "OCF tax-shield identity",
+          "passed": true,
+          "detail": "Operating cash flow computed as (R-VC-FC)(1-t) + t*Depreciation must equal Net Income + Depreciation.",
+          "delta": 2.3283064365386963e-10,
+          "tolerance": 0.000001
+        },
+        {
+          "name": "NPV cross-foot",
+          "passed": true,
+          "detail": "NPV accumulated from the per-year present values must equal the NPV of the cash-flow series.",
+          "delta": 2.3283064365386963e-10,
+          "tolerance": 0.000001
+        }
+      ],
+      "allChecksPass": true
+    },
+    {
+      "id": "B",
+      "label": "Rent — 3-Year Reserved Commitment",
+      "projectLifeYears": 3,
+      "cashFlows": [
+        -45000,
+        131140.4025600001,
+        556559.0578943997,
+        265295.6808468483
+      ],
+      "initial": {
+        "equipmentCost": 0,
+        "installTransportCost": 45000,
+        "capitalisedCost": 45000,
+        "workingCapital": 0,
+        "total": -45000,
+        "sunkCostExcluded": 120000
+      },
+      "terminal": {
+        "salvageValue": 0,
+        "closingBookValue": 0,
+        "gainOrLossOnDisposal": 0,
+        "taxOnDisposal": 0,
+        "afterTaxSalvage": 0,
+        "workingCapitalRecovered": 0,
+        "total": 0
+      },
+      "depreciableBase": 45000,
+      "annualDepreciation": 15000,
+      "salvageValue": 0,
+      "npv": 693082.3853642857,
+      "irr": 4.40452024289525,
+      "irrRoots": [
+        4.40452024289525
+      ],
+      "irrIsConventional": true,
+      "irrSignChanges": 1,
+      "mirr": 1.866785773408846,
+      "profitabilityIndex": 16.401830785873013,
+      "paybackPeriod": 0.3431436774750737,
+      "discountedPaybackPeriod": 0.3871748447376427,
+      "arr": 13.451779871129602,
+      "arrInitialBasis": 6.725889935564801,
+      "equivalentAnnualAnnuity": 292697.1364641491,
+      "pvOfInflows": 738082.3853642857,
+      "pvOfOutflows": 45000,
+      "capitalIntensity": 0.012037397230848642,
+      "ratioMetricsMeaningful": false,
+      "breakEven": {
+        "accountingByYear": [
+          0.6265217756792802,
+          0.6810019300861742,
+          0.7402194892241024
+        ],
+        "cashByYear": [
+          0.6237623762376238,
+          0.6780025828669823,
+          0.7369593292032417
+        ],
+        "accountingAverage": 0.6825810649965188,
+        "cashAverage": 0.6795747627692826,
+        "npvBreakEvenUtilisationFactor": 0.9138095418931877,
+        "npvBreakEvenPeakUtilisation": 0.7310476335145503,
+        "npvBreakEvenBlendedRate": 18.458952746242392,
+        "contributionMarginYear1": 20.2,
+        "contributionMarginRatioYear1": 1
+      },
+      "years": [
+        {
+          "year": 1,
+          "utilisation": 0.65,
+          "utilisedHours": 174919.68000000002,
+          "revenue": 3533377.5360000003,
+          "variableCost": 0,
+          "fixedCost": 3390750.72,
+          "depreciation": 15000,
+          "ebit": 127626.81600000011,
+          "tax": 11486.41344000001,
+          "netIncome": 116140.4025600001,
+          "operatingCashFlow": 131140.4025600001,
+          "netCashFlow": 131140.4025600001,
+          "presentValue": 116226.5591673263
+        },
+        {
+          "year": 2,
+          "utilisation": 0.8,
+          "utilisedHours": 215285.76,
+          "revenue": 4000870.56384,
+          "variableCost": 0,
+          "fixedCost": 3390750.72,
+          "depreciation": 15000,
+          "ebit": 595119.8438399998,
+          "tax": 53560.78594559998,
+          "netIncome": 541559.0578943997,
+          "operatingCashFlow": 556559.0578943997,
+          "netCashFlow": 556559.0578943997,
+          "presentValue": 437168.6314372481
+        },
+        {
+          "year": 3,
+          "utilisation": 0.8,
+          "utilisedHours": 215285.76,
+          "revenue": 3680800.9187328005,
+          "variableCost": 0,
+          "fixedCost": 3390750.72,
+          "depreciation": 15000,
+          "ebit": 275050.1987328003,
+          "tax": 24754.517885952027,
+          "netIncome": 250295.6808468483,
+          "operatingCashFlow": 265295.6808468483,
+          "netCashFlow": 265295.6808468483,
+          "presentValue": 184687.19475971133
+        }
+      ],
+      "checks": [
+        {
+          "name": "NPV(IRR) = 0",
+          "passed": true,
+          "detail": "The returned IRR is substituted back into the NPV formula; the result must be zero.",
+          "delta": 9.629275155020878e-10,
+          "tolerance": 0.0009979951413012483
+        },
+        {
+          "name": "PI identity",
+          "passed": true,
+          "detail": "Profitability Index computed as PV(inflows)/PV(outflows) must equal 1 + NPV/|PV(outflows)|.",
+          "delta": 3.552713678800501e-15,
+          "tolerance": 1e-9
+        },
+        {
+          "name": "MIRR two ways",
+          "passed": true,
+          "detail": "Closed-form MIRR must equal the IRR of the collapsed [-PV_neg, ..., FV_pos] series.",
+          "delta": 1.5987211554602254e-14,
+          "tolerance": 1e-8
+        },
+        {
+          "name": "Depreciation reconciliation",
+          "passed": true,
+          "detail": "Sum of annual depreciation must equal capitalised cost less closing book value.",
+          "delta": 0,
+          "tolerance": 0.000001
+        },
+        {
+          "name": "Working capital recovery",
+          "passed": true,
+          "detail": "All working capital committed over the project life must be released at the end.",
+          "delta": 0,
+          "tolerance": 0.000001
+        },
+        {
+          "name": "OCF tax-shield identity",
+          "passed": true,
+          "detail": "Operating cash flow computed as (R-VC-FC)(1-t) + t*Depreciation must equal Net Income + Depreciation.",
+          "delta": 0,
+          "tolerance": 0.000001
+        },
+        {
+          "name": "NPV cross-foot",
+          "passed": true,
+          "detail": "NPV accumulated from the per-year present values must equal the NPV of the cash-flow series.",
+          "delta": 0,
+          "tolerance": 0.000001
+        }
+      ],
+      "allChecksPass": true
+    },
+    {
+      "id": "C",
+      "label": "Hybrid — Own 16 GPUs, Burst to Cloud",
+      "projectLifeYears": 5,
+      "cashFlows": [
+        -3830000,
+        1550877.3651199997,
+        1288025.99088,
+        1106553.3732700802,
+        902074.417362672,
+        1542209.4288008404
+      ],
+      "initial": {
+        "equipmentCost": 3110000,
+        "installTransportCost": 420000,
+        "capitalisedCost": 3530000,
+        "workingCapital": 300000,
+        "total": -3830000,
+        "sunkCostExcluded": 120000
+      },
+      "terminal": {
+        "salvageValue": 559800,
+        "closingBookValue": 559800,
+        "gainOrLossOnDisposal": 0,
+        "taxOnDisposal": 0,
+        "afterTaxSalvage": 559800,
+        "workingCapitalRecovered": 300000,
+        "total": 859800
+      },
+      "depreciableBase": 3530000,
+      "annualDepreciation": 594040,
+      "salvageValue": 559800,
+      "npv": 726441.9254159345,
+      "irr": 0.2064188500022573,
+      "irrRoots": [
+        0.2064188500022573
+      ],
+      "irrIsConventional": true,
+      "irrSignChanges": 1,
+      "mirr": 0.16819823203361572,
+      "profitabilityIndex": 1.1896715209963278,
+      "paybackPeriod": 2.895660948618427,
+      "discountedPaybackPeriod": 4.138583463317608,
+      "arr": 0.25035361880127077,
+      "arrInitialBasis": 0.13366791516624507,
+      "equivalentAnnualAnnuity": 205690.53357803114,
+      "pvOfInflows": 4556441.925415935,
+      "pvOfOutflows": 3830000,
+      "capitalIntensity": 1.9119379918330286,
+      "ratioMetricsMeaningful": true,
+      "breakEven": {
+        "accountingByYear": [
+          0.4815526693277422,
+          0.5890339785465898,
+          0.6533776828223117,
+          0.7251402427348086,
+          0.805242176174208
+        ],
+        "cashByYear": [
+          0.24514598220380251,
+          0.331229897843549,
+          0.3721562749594177,
+          0.4182749940506021,
+          0.4702758006158385
+        ],
+        "accountingAverage": 0.650869349921132,
+        "cashAverage": 0.367416589934642,
+        "npvBreakEvenUtilisationFactor": 0.8848282072609042,
+        "npvBreakEvenPeakUtilisation": 0.8140419506800318,
+        "npvBreakEvenBlendedRate": 17.23615430583551,
+        "contributionMarginYear1": 18.675,
+        "contributionMarginRatioYear1": 0.9638709677419355
+      },
+      "years": [
+        {
+          "year": 1,
+          "utilisation": 0.9,
+          "utilisedHours": 121098.24,
+          "revenue": 2346278.4,
+          "variableCost": 84768.768,
+          "fixedCost": 616000,
+          "depreciation": 594040,
+          "ebit": 1051469.6319999998,
+          "tax": 94632.26687999998,
+          "netIncome": 956837.3651199997,
+          "operatingCashFlow": 1550877.3651199997,
+          "netCashFlow": 1550877.3651199997,
+          "presentValue": 1374505.0062349497
+        },
+        {
+          "year": 2,
+          "utilisation": 0.92,
+          "utilisedHours": 123789.312,
+          "revenue": 2206544.4864,
+          "variableCost": 86652.5184,
+          "fixedCost": 763230,
+          "depreciation": 594040,
+          "ebit": 762621.9679999999,
+          "tax": 68635.97711999998,
+          "netIncome": 693985.9908799999,
+          "operatingCashFlow": 1288025.99088,
+          "netCashFlow": 1288025.99088,
+          "presentValue": 1011724.7248098033
+        },
+        {
+          "year": 3,
+          "utilisation": 0.92,
+          "utilisedHours": 123789.312,
+          "revenue": 2030020.9274880001,
+          "variableCost": 86652.5184,
+          "fixedCost": 786126.9,
+          "depreciation": 594040,
+          "ebit": 563201.5090880003,
+          "tax": 50688.135817920025,
+          "netIncome": 512513.37327008025,
+          "operatingCashFlow": 1106553.3732700802,
+          "netCashFlow": 1106553.3732700802,
+          "presentValue": 770333.8317035203
+        },
+        {
+          "year": 4,
+          "utilisation": 0.9,
+          "utilisedHours": 121098.24,
+          "revenue": 1827018.8347392,
+          "variableCost": 84768.768,
+          "fixedCost": 809710.707,
+          "depreciation": 594040,
+          "ebit": 338499.3597392001,
+          "tax": 30464.942376528008,
+          "netIncome": 308034.4173626721,
+          "operatingCashFlow": 902074.417362672,
+          "netCashFlow": 902074.417362672,
+          "presentValue": 556567.4968074482
+        },
+        {
+          "year": 5,
+          "utilisation": 0.86,
+          "utilisedHours": 115716.096,
+          "revenue": 1606152.5578285058,
+          "variableCost": 81001.2672,
+          "fixedCost": 834002.02821,
+          "depreciation": 594040,
+          "ebit": 97109.26241850585,
+          "tax": 8739.833617665527,
+          "netIncome": 88369.42880084032,
+          "operatingCashFlow": 682409.4288008403,
+          "netCashFlow": 1542209.4288008404,
+          "presentValue": 843310.8658602134
+        }
+      ],
+      "checks": [
+        {
+          "name": "NPV(IRR) = 0",
+          "passed": true,
+          "detail": "The returned IRR is substituted back into the NPV formula; the result must be zero.",
+          "delta": 4.0745362639427185e-9,
+          "tolerance": 0.010219740575433593
+        },
+        {
+          "name": "PI identity",
+          "passed": true,
+          "detail": "Profitability Index computed as PV(inflows)/PV(outflows) must equal 1 + NPV/|PV(outflows)|.",
+          "delta": 2.220446049250313e-16,
+          "tolerance": 1e-9
+        },
+        {
+          "name": "MIRR two ways",
+          "passed": true,
+          "detail": "Closed-form MIRR must equal the IRR of the collapsed [-PV_neg, ..., FV_pos] series.",
+          "delta": 7.327471962526033e-15,
+          "tolerance": 1e-8
+        },
+        {
+          "name": "Depreciation reconciliation",
+          "passed": true,
+          "detail": "Sum of annual depreciation must equal capitalised cost less closing book value.",
+          "delta": 0,
+          "tolerance": 0.000001
+        },
+        {
+          "name": "Working capital recovery",
+          "passed": true,
+          "detail": "All working capital committed over the project life must be released at the end.",
+          "delta": 0,
+          "tolerance": 0.000001
+        },
+        {
+          "name": "OCF tax-shield identity",
+          "passed": true,
+          "detail": "Operating cash flow computed as (R-VC-FC)(1-t) + t*Depreciation must equal Net Income + Depreciation.",
+          "delta": 2.3283064365386963e-10,
+          "tolerance": 0.000001
+        },
+        {
+          "name": "NPV cross-foot",
+          "passed": true,
+          "detail": "NPV accumulated from the per-year present values must equal the NPV of the cash-flow series.",
+          "delta": 4.656612873077393e-10,
+          "tolerance": 0.000001
+        }
+      ],
+      "allChecksPass": true
+    },
+    {
+      "id": "B5",
+      "label": "Rent — Same Commitment Held for 5 Years (diagnostic)",
+      "projectLifeYears": 5,
+      "cashFlows": [
+        -45000,
+        130600.4025600001,
+        556019.0578943997,
+        264755.6808468483,
+        -3206.6260368998956,
+        -249731.94836994793
+      ],
+      "initial": {
+        "equipmentCost": 0,
+        "installTransportCost": 45000,
+        "capitalisedCost": 45000,
+        "workingCapital": 0,
+        "total": -45000,
+        "sunkCostExcluded": 120000
+      },
+      "terminal": {
+        "salvageValue": 0,
+        "closingBookValue": 0,
+        "gainOrLossOnDisposal": 0,
+        "taxOnDisposal": 0,
+        "afterTaxSalvage": 0,
+        "workingCapitalRecovered": 0,
+        "total": 0
+      },
+      "depreciableBase": 45000,
+      "annualDepreciation": 9000,
+      "salvageValue": 0,
+      "npv": 553266.8575360803,
+      "irr": -0.3778715514429052,
+      "irrRoots": [
+        -0.3778715514429052,
+        4.390069865242664
+      ],
+      "irrIsConventional": false,
+      "irrSignChanges": 2,
+      "mirr": 0.4122321536866438,
+      "profitabilityIndex": 4.014472836245033,
+      "paybackPeriod": 0.3445624907574555,
+      "discountedPaybackPeriod": 0.3887757158839799,
+      "arr": 5.808325039061336,
+      "arrInitialBasis": 2.904162519530668,
+      "equivalentAnnualAnnuity": 156656.37011861353,
+      "pvOfInflows": 736803.7104424265,
+      "pvOfOutflows": 183536.8529063461,
+      "capitalIntensity": 0.012699799051358176,
+      "ratioMetricsMeaningful": false,
+      "breakEven": {
+        "accountingByYear": [
+          0.6254180159026177,
+          0.6798021911984974,
+          0.738915425215758,
+          0.8031689404519109,
+          0.8730097178825119
+        ],
+        "cashByYear": [
+          0.6237623762376238,
+          0.6780025828669823,
+          0.7369593292032417,
+          0.8010427491339582,
+          0.8706986403629983
+        ],
+        "accountingAverage": 0.7440628581302592,
+        "cashAverage": 0.7420931355609609,
+        "npvBreakEvenUtilisationFactor": 0.9518598250273368,
+        "npvBreakEvenPeakUtilisation": 0.7614878600218695,
+        "npvBreakEvenBlendedRate": 19.227568465552203,
+        "contributionMarginYear1": 20.2,
+        "contributionMarginRatioYear1": 1
+      },
+      "years": [
+        {
+          "year": 1,
+          "utilisation": 0.65,
+          "utilisedHours": 174919.68000000002,
+          "revenue": 3533377.5360000003,
+          "variableCost": 0,
+          "fixedCost": 3390750.72,
+          "depreciation": 9000,
+          "ebit": 133626.8160000001,
+          "tax": 12026.41344000001,
+          "netIncome": 121600.4025600001,
+          "operatingCashFlow": 130600.4025600001,
+          "netCashFlow": 130600.4025600001,
+          "presentValue": 115747.9702601309
+        },
+        {
+          "year": 2,
+          "utilisation": 0.8,
+          "utilisedHours": 215285.76,
+          "revenue": 4000870.56384,
+          "variableCost": 0,
+          "fixedCost": 3390750.72,
+          "depreciation": 9000,
+          "ebit": 601119.8438399998,
+          "tax": 54100.78594559998,
+          "netIncome": 547019.0578943997,
+          "operatingCashFlow": 556019.0578943997,
+          "netCashFlow": 556019.0578943997,
+          "presentValue": 436744.46969263605
+        },
+        {
+          "year": 3,
+          "utilisation": 0.8,
+          "utilisedHours": 215285.76,
+          "revenue": 3680800.9187328005,
+          "variableCost": 0,
+          "fixedCost": 3390750.72,
+          "depreciation": 9000,
+          "ebit": 281050.1987328003,
+          "tax": 25294.517885952027,
+          "netIncome": 255755.6808468483,
+          "operatingCashFlow": 264755.6808468483,
+          "netCashFlow": 264755.6808468483,
+          "presentValue": 184311.27048965954
+        },
+        {
+          "year": 4,
+          "utilisation": 0.8,
+          "utilisedHours": 215285.76,
+          "revenue": 3386336.845234176,
+          "variableCost": 0,
+          "fixedCost": 3390750.72,
+          "depreciation": 9000,
+          "ebit": -13413.87476582406,
+          "tax": -1207.2487289241653,
+          "netIncome": -12206.626036899896,
+          "operatingCashFlow": -3206.6260368998956,
+          "netCashFlow": -3206.6260368998956,
+          "presentValue": -1978.4441196911102
+        },
+        {
+          "year": 5,
+          "utilisation": 0.8,
+          "utilisedHours": 215285.76,
+          "revenue": 3115429.897615442,
+          "variableCost": 0,
+          "fixedCost": 3390750.72,
+          "depreciation": 9000,
+          "ebit": -284320.82238455815,
+          "tax": -25588.874014610232,
+          "netIncome": -258731.94836994793,
+          "operatingCashFlow": -249731.94836994793,
+          "netCashFlow": -249731.94836994793,
+          "presentValue": -136558.40878665503
+        }
+      ],
+      "checks": [
+        {
+          "name": "NPV(IRR) = 0",
+          "passed": true,
+          "detail": "The returned IRR is substituted back into the NPV formula; the result must be zero.",
+          "delta": 1.5832483768463135e-8,
+          "tolerance": 0.0012493137157080958
+        },
+        {
+          "name": "PI identity",
+          "passed": true,
+          "detail": "Profitability Index computed as PV(inflows)/PV(outflows) must equal 1 + NPV/|PV(outflows)|.",
+          "delta": 8.881784197001252e-16,
+          "tolerance": 1e-9
+        },
+        {
+          "name": "MIRR two ways",
+          "passed": true,
+          "detail": "Closed-form MIRR must equal the IRR of the collapsed [-PV_neg, ..., FV_pos] series.",
+          "delta": 2.4424906541753444e-15,
+          "tolerance": 1e-8
+        },
+        {
+          "name": "Depreciation reconciliation",
+          "passed": true,
+          "detail": "Sum of annual depreciation must equal capitalised cost less closing book value.",
+          "delta": 0,
+          "tolerance": 0.000001
+        },
+        {
+          "name": "Working capital recovery",
+          "passed": true,
+          "detail": "All working capital committed over the project life must be released at the end.",
+          "delta": 0,
+          "tolerance": 0.000001
+        },
+        {
+          "name": "OCF tax-shield identity",
+          "passed": true,
+          "detail": "Operating cash flow computed as (R-VC-FC)(1-t) + t*Depreciation must equal Net Income + Depreciation.",
+          "delta": 0,
+          "tolerance": 0.000001
+        },
+        {
+          "name": "NPV cross-foot",
+          "passed": true,
+          "detail": "NPV accumulated from the per-year present values must equal the NPV of the cash-flow series.",
+          "delta": 0,
+          "tolerance": 0.000001
+        }
+      ],
+      "allChecksPass": true
+    }
+  ]
+}

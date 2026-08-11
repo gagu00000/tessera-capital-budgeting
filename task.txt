@@ -1,0 +1,73 @@
+Independent Assignment: AI-Powered Capital Budgeting and Investment Decision Application
+Assignment Overview
+In this individual assignment, each student will design and build a simple AI-powered application that helps a business evaluate a real-world capital investment decision. The application should allow a user to enter project information, calculate important capital budgeting measures, compare investment alternatives, and receive an AI-generated recommendation.
+The student must also submit a professional report explaining the investment problem, financial calculations, assumptions, risks, results, and final recommendation.
+Project Objective
+The purpose of this assignment is to apply capital budgeting concepts to a realistic business decision, such as:
+•	Purchasing new machinery or equipment
+•	Opening a new branch or facility
+•	Launching a new product
+•	Investing in technology or automation
+•	Replacing an old asset
+•	Expanding production capacity
+•	Installing renewable-energy equipment
+•	Developing a new digital platform
+The student may select a real company, a small business, a start-up, or create a realistic fictional company.
+Part A: AI Application
+Build a beginner-friendly application using tools such as ChatGPT, Claude, Gemini, Lovable, Replit, Streamlit, Bubble, Glide, Power Apps, or another suitable platform.
+The application must allow the user to enter:
+•	Initial investment cost
+•	Installation and transportation costs
+•	Working capital requirement
+•	Project life
+•	Expected annual revenues
+•	Fixed and variable operating costs
+•	Depreciation
+•	Tax rate
+•	Expected salvage value
+•	Required rate of return or cost of capital
+The application must calculate and display:
+1.	Initial project cash flow
+2.	Annual operating cash flows
+3.	Terminal-year cash flow
+4.	Payback Period
+5.	Discounted Payback Period
+6.	Accounting Rate of Return
+7.	Net Present Value
+8.	Internal Rate of Return
+9.	Modified Internal Rate of Return
+10.	Profitability Index
+11.	Break-even analysis
+12.	Sensitivity analysis
+13.	Best-case, base-case, and worst-case scenarios
+The AI component should explain the results in simple language, identify major risks, compare alternative projects, and provide a final recommendation such as Accept, Reject, Delay, or Review Further.
+Part B: Written Report
+Submit a report of approximately 1,300–1500 words containing:
+1.	Company and project background
+2.	Description of the investment decision
+3.	Project assumptions and data sources
+4.	Identification of relevant and irrelevant cash flows
+5.	Treatment of sunk costs, opportunity costs, working capital, depreciation, taxes, and salvage value
+6.	Capital budgeting calculations and results
+7.	Comparison of investment alternatives
+8.	Sensitivity and scenario analysis
+9.	Financial and non-financial risks
+10.	AI-generated insights and student evaluation of those insights
+11.	Final investment recommendation
+12.	Limitations of the analysis
+The report must include appropriate tables, formulas, screenshots of the application, and references.
+Required Submission
+Submit the following:
+•	Working application link or application file
+•	Written report in PDF or Word format
+•	Reference list and declaration of AI tools used
+Important Instructions
+•	The project must be completed individually.
+•	All assumptions must be realistic and clearly explained.
+•	Calculations must be financially correct and independently verified.
+•	AI should support the analysis, but the final judgment must be made by the student.
+•	Do not rely only on AI-generated numbers or recommendations.
+•	Clearly acknowledge all AI tools, data sources, and external references used.
+•	The application should be simple enough for a non-finance user to understand.
+•	Marks will be awarded for financial accuracy, practical relevance, application functionality, quality of analysis, originality, report presentation, and critical evaluation of AI output.
+

@@ -1,0 +1,261 @@
+
+================ WACC DERIVATION ================
+  Levered beta (Hamada)      1.7375
+  Cost of equity (CAPM)           16.03%
+  After-tax cost of debt           5.37%
+  WACC                          12.8317%
+
+
+================ ALTERNATIVE A — Own — Full 32-GPU Cluster ================
+
+-- Initial cash flow --
+  Equipment                       5,860,000
+  Installation & transport          700,000
+  Capitalised (depreciable)       6,560,000
+  Working capital                   500,000
+  TOTAL CF0                      -7,060,000
+  [excluded] sunk cost              120,000
+
+-- Operating years --
+  Yr   Util   UtilHrs        Revenue      VarCost      FixCost         Dep         EBIT          Tax          OCF      NetCF           PV
+   1    65%    174920      3,148,554        122,444      1,036,000      1,101,040        889,070         80,016      1,910,094      1,910,094      1,692,870
+   2    80%    215286      3,565,132        150,700      1,319,430      1,101,040        993,962         89,457      2,005,546      2,005,546      1,575,325
+   3    85%    228741      3,484,917        160,119      1,359,013      1,101,040        864,745         77,827      1,887,958      1,887,958      1,314,313
+   4    84%    226050      3,168,404        158,235      1,399,783      1,101,040        509,346         45,841      1,564,545      1,564,545        965,303
+   5    78%    209904      2,706,723        146,933      1,441,777      1,101,040         16,973          1,528      1,116,486      2,671,286      1,460,712
+
+-- Terminal cash flow --
+  Salvage value                   1,054,800
+  Closing book value              1,054,800
+  Gain/(loss) on disposal                 0
+  Tax on disposal                         0
+  After-tax salvage               1,054,800
+  Working capital recovered         500,000
+  TOTAL terminal                  1,554,800
+
+-- Decision metrics --
+  NPV @ 12.83%                    -51,476
+  IRR                             12.54%   (sign changes: 1, conventional: true)
+  MIRR                            12.67%
+  Profitability Index              0.993
+  Payback period (yrs)             3.803
+  Discounted payback (yrs)        never
+  ARR (avg investment)            15.65%
+  ARR (initial investment)         8.44%
+  Equivalent Annual Annuity         -14,575   (life 5 yrs)
+  PV of inflows                   7,008,524
+  PV of outflows                  7,060,000
+
+-- Break-even --
+  Contribution margin/GPU-hr 17.30 AED  (96.1% of revenue)
+  Accounting BE utilisation  45.9%  56.7%  62.9%  69.8%  77.5%
+  Cash BE utilisation        22.3%  30.9%  34.7%  39.1%  43.9%
+  NPV BE utilisation factor        1.005
+  NPV BE peak utilisation          85.4%
+  NPV BE blended rate        18.09 AED/GPU-hr (vs actual 18.00)
+
+-- Consistency checks --
+  [PASS] NPV(IRR) = 0                   delta=1.022e-7 (tol 1.7e-2)
+  [PASS] PI identity                    delta=1.110e-16 (tol 1.0e-9)
+  [PASS] MIRR two ways                  delta=4.885e-15 (tol 1.0e-8)
+  [PASS] Depreciation reconciliation    delta=0.000e+0 (tol 1.0e-6)
+  [PASS] Working capital recovery       delta=0.000e+0 (tol 1.0e-6)
+  [PASS] OCF tax-shield identity        delta=2.328e-10 (tol 1.0e-6)
+  [PASS] NPV cross-foot                 delta=2.328e-10 (tol 1.0e-6)
+  ALL CHECKS PASS: true
+
+-- Cash flow series --
+  -7060000.00  1910094.12  2005545.56  1887957.97  1564544.82  2671285.61
+
+
+================ ALTERNATIVE B — Rent — 3-Year Reserved Commitment ================
+
+-- Initial cash flow --
+  Equipment                               0
+  Installation & transport           45,000
+  Capitalised (depreciable)          45,000
+  Working capital                         0
+  TOTAL CF0                         -45,000
+  [excluded] sunk cost              120,000
+
+-- Operating years --
+  Yr   Util   UtilHrs        Revenue      VarCost      FixCost         Dep         EBIT          Tax          OCF      NetCF           PV
+   1    65%    174920      3,533,378              0      3,390,751         15,000        127,627         11,486        131,140        131,140        116,227
+   2    80%    215286      4,000,871              0      3,390,751         15,000        595,120         53,561        556,559        556,559        437,169
+   3    80%    215286      3,680,801              0      3,390,751         15,000        275,050         24,755        265,296        265,296        184,687
+
+-- Terminal cash flow --
+  Salvage value                           0
+  Closing book value                      0
+  Gain/(loss) on disposal                 0
+  Tax on disposal                         0
+  After-tax salvage                       0
+  Working capital recovered               0
+  TOTAL terminal                          0
+
+-- Decision metrics --
+  NPV @ 12.83%                    693,082
+  IRR                            440.45%   (sign changes: 1, conventional: true)
+  MIRR                           186.68%
+  Profitability Index             16.402
+  Payback period (yrs)             0.343
+  Discounted payback (yrs)         0.387
+  ARR (avg investment)          1345.18%
+  ARR (initial investment)       672.59%
+  Equivalent Annual Annuity         292,697   (life 3 yrs)
+  PV of inflows                     738,082
+  PV of outflows                     45,000
+
+-- Break-even --
+  Contribution margin/GPU-hr 20.20 AED  (100.0% of revenue)
+  Accounting BE utilisation  62.7%  68.1%  74.0%
+  Cash BE utilisation        62.4%  67.8%  73.7%
+  NPV BE utilisation factor        0.914
+  NPV BE peak utilisation          73.1%
+  NPV BE blended rate        18.46 AED/GPU-hr (vs actual 20.20)
+
+-- Consistency checks --
+  [PASS] NPV(IRR) = 0                   delta=9.629e-10 (tol 1.0e-3)
+  [PASS] PI identity                    delta=3.553e-15 (tol 1.0e-9)
+  [PASS] MIRR two ways                  delta=1.599e-14 (tol 1.0e-8)
+  [PASS] Depreciation reconciliation    delta=0.000e+0 (tol 1.0e-6)
+  [PASS] Working capital recovery       delta=0.000e+0 (tol 1.0e-6)
+  [PASS] OCF tax-shield identity        delta=0.000e+0 (tol 1.0e-6)
+  [PASS] NPV cross-foot                 delta=0.000e+0 (tol 1.0e-6)
+  ALL CHECKS PASS: true
+
+-- Cash flow series --
+  -45000.00  131140.40  556559.06  265295.68
+
+
+================ ALTERNATIVE C — Hybrid — Own 16 GPUs, Burst to Cloud ================
+
+-- Initial cash flow --
+  Equipment                       3,110,000
+  Installation & transport          420,000
+  Capitalised (depreciable)       3,530,000
+  Working capital                   300,000
+  TOTAL CF0                      -3,830,000
+  [excluded] sunk cost              120,000
+
+-- Operating years --
+  Yr   Util   UtilHrs        Revenue      VarCost      FixCost         Dep         EBIT          Tax          OCF      NetCF           PV
+   1    90%    121098      2,346,278         84,769        616,000        594,040      1,051,470         94,632      1,550,877      1,550,877      1,374,505
+   2    92%    123789      2,206,544         86,653        763,230        594,040        762,622         68,636      1,288,026      1,288,026      1,011,725
+   3    92%    123789      2,030,021         86,653        786,127        594,040        563,202         50,688      1,106,553      1,106,553        770,334
+   4    90%    121098      1,827,019         84,769        809,711        594,040        338,499         30,465        902,074        902,074        556,567
+   5    86%    115716      1,606,153         81,001        834,002        594,040         97,109          8,740        682,409      1,542,209        843,311
+
+-- Terminal cash flow --
+  Salvage value                     559,800
+  Closing book value                559,800
+  Gain/(loss) on disposal                 0
+  Tax on disposal                         0
+  After-tax salvage                 559,800
+  Working capital recovered         300,000
+  TOTAL terminal                    859,800
+
+-- Decision metrics --
+  NPV @ 12.83%                    726,442
+  IRR                             20.64%   (sign changes: 1, conventional: true)
+  MIRR                            16.82%
+  Profitability Index              1.190
+  Payback period (yrs)             2.896
+  Discounted payback (yrs)         4.139
+  ARR (avg investment)            25.04%
+  ARR (initial investment)        13.37%
+  Equivalent Annual Annuity         205,691   (life 5 yrs)
+  PV of inflows                   4,556,442
+  PV of outflows                  3,830,000
+
+-- Break-even --
+  Contribution margin/GPU-hr 18.68 AED  (96.4% of revenue)
+  Accounting BE utilisation  48.2%  58.9%  65.3%  72.5%  80.5%
+  Cash BE utilisation        24.5%  33.1%  37.2%  41.8%  47.0%
+  NPV BE utilisation factor        0.885
+  NPV BE peak utilisation          81.4%
+  NPV BE blended rate        17.24 AED/GPU-hr (vs actual 19.38)
+
+-- Consistency checks --
+  [PASS] NPV(IRR) = 0                   delta=4.075e-9 (tol 1.0e-2)
+  [PASS] PI identity                    delta=2.220e-16 (tol 1.0e-9)
+  [PASS] MIRR two ways                  delta=7.327e-15 (tol 1.0e-8)
+  [PASS] Depreciation reconciliation    delta=0.000e+0 (tol 1.0e-6)
+  [PASS] Working capital recovery       delta=0.000e+0 (tol 1.0e-6)
+  [PASS] OCF tax-shield identity        delta=2.328e-10 (tol 1.0e-6)
+  [PASS] NPV cross-foot                 delta=4.657e-10 (tol 1.0e-6)
+  ALL CHECKS PASS: true
+
+-- Cash flow series --
+  -3830000.00  1550877.37  1288025.99  1106553.37  902074.42  1542209.43
+
+
+================ ALTERNATIVE B5 — Rent — Same Commitment Held for 5 Years (diagnostic) ================
+
+-- Initial cash flow --
+  Equipment                               0
+  Installation & transport           45,000
+  Capitalised (depreciable)          45,000
+  Working capital                         0
+  TOTAL CF0                         -45,000
+  [excluded] sunk cost              120,000
+
+-- Operating years --
+  Yr   Util   UtilHrs        Revenue      VarCost      FixCost         Dep         EBIT          Tax          OCF      NetCF           PV
+   1    65%    174920      3,533,378              0      3,390,751          9,000        133,627         12,026        130,600        130,600        115,748
+   2    80%    215286      4,000,871              0      3,390,751          9,000        601,120         54,101        556,019        556,019        436,744
+   3    80%    215286      3,680,801              0      3,390,751          9,000        281,050         25,295        264,756        264,756        184,311
+   4    80%    215286      3,386,337              0      3,390,751          9,000        -13,414         -1,207         -3,207         -3,207         -1,978
+   5    80%    215286      3,115,430              0      3,390,751          9,000       -284,321        -25,589       -249,732       -249,732       -136,558
+
+-- Terminal cash flow --
+  Salvage value                           0
+  Closing book value                      0
+  Gain/(loss) on disposal                 0
+  Tax on disposal                         0
+  After-tax salvage                       0
+  Working capital recovered               0
+  TOTAL terminal                          0
+
+-- Decision metrics --
+  NPV @ 12.83%                    553,267
+  IRR                            -37.79%   (sign changes: 2, conventional: false)
+  MIRR                            41.22%
+  Profitability Index              4.014
+  Payback period (yrs)             0.345
+  Discounted payback (yrs)         0.389
+  ARR (avg investment)           580.83%
+  ARR (initial investment)       290.42%
+  Equivalent Annual Annuity         156,656   (life 5 yrs)
+  PV of inflows                     736,804
+  PV of outflows                    183,537
+
+-- Break-even --
+  Contribution margin/GPU-hr 20.20 AED  (100.0% of revenue)
+  Accounting BE utilisation  62.5%  68.0%  73.9%  80.3%  87.3%
+  Cash BE utilisation        62.4%  67.8%  73.7%  80.1%  87.1%
+  NPV BE utilisation factor        0.952
+  NPV BE peak utilisation          76.1%
+  NPV BE blended rate        19.23 AED/GPU-hr (vs actual 20.20)
+
+-- Consistency checks --
+  [PASS] NPV(IRR) = 0                   delta=1.583e-8 (tol 1.2e-3)
+  [PASS] PI identity                    delta=8.882e-16 (tol 1.0e-9)
+  [PASS] MIRR two ways                  delta=2.442e-15 (tol 1.0e-8)
+  [PASS] Depreciation reconciliation    delta=0.000e+0 (tol 1.0e-6)
+  [PASS] Working capital recovery       delta=0.000e+0 (tol 1.0e-6)
+  [PASS] OCF tax-shield identity        delta=0.000e+0 (tol 1.0e-6)
+  [PASS] NPV cross-foot                 delta=0.000e+0 (tol 1.0e-6)
+  ALL CHECKS PASS: true
+
+-- Cash flow series --
+  -45000.00  130600.40  556019.06  264755.68  -3206.63  -249731.95
+
+
+================ ALTERNATIVE COMPARISON ================
+  Alt  Life        Outlay           NPV        EAA/yr        IRR       MIRR      PI    DiscPayback  RatioMetrics
+  A     5       7,060,000        -51,476        -14,575      12.54%      12.67%   0.993      never   meaningful (intensity 2.20)
+  B     3          45,000        693,082        292,697     440.45%     186.68%  16.402        0.39   NOT MEANINGFUL (intensity 0.01)
+  C     5       3,830,000        726,442        205,691      20.64%      16.82%   1.190        4.14   meaningful (intensity 1.91)
+  B5    5          45,000        553,267        156,656     -37.79%      41.22%   4.014        0.39   NOT MEANINGFUL (intensity 0.01)
+
