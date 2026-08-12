@@ -38,8 +38,118 @@ interface Shot {
 
 const HIDE_NAV_CSS = 'nav { visibility: hidden !important; }';
 
+/**
+ * The application sets `scroll-behavior: smooth` on `html`, which is right for
+ * a person clicking the nav and wrong for automation: every
+ * `scrollIntoViewIfNeeded` becomes an animated scroll, so the target element is
+ * still genuinely moving when Playwright applies its "element is stable"
+ * precondition. On the short sections that resolves eventually; on the tall
+ * ones the scroll animation outlasts the timeout and the capture hangs
+ * outright. Forcing instant scrolling for the capture run removes the race —
+ * it affects how the harness navigates, not how any figure looks.
+ */
+const INSTANT_SCROLL_CSS = 'html { scroll-behavior: auto !important; }';
+
+/** Ceiling on how far the viewport may be grown to fit a target (CSS px). */
+const MAX_CAPTURE_HEIGHT = 3000;
+
+/**
+ * Scrolling and ordinary clicking are driven through in-page JavaScript rather
+ * than through Playwright's `locator` actions.
+ *
+ * Playwright guards every action with an actionability check that waits for the
+ * target's bounding box to stop moving. On a long page whose sections animate
+ * as they enter the viewport, that check is a poor fit: scrolling to a section
+ * re-triggers entrance animations elsewhere, so an action a few thousand pixels
+ * away can spend tens of seconds waiting, or time out entirely, for reasons
+ * that have nothing to do with whether the click will land. The application
+ * itself is not slow — the same state change measured in-page completes in
+ * under 3 ms.
+ *
+ * The die in the hero is the exception: three.js picks objects by raycasting
+ * real pointer events, so those clicks stay on `page.mouse`.
+ */
+async function scrollToSection(page: Page, selector: string) {
+  await page.evaluate((sel) => {
+    document.querySelector(sel)!.scrollIntoView({ block: 'start', behavior: 'instant' });
+    window.scrollBy(0, -24); // a little headroom above the section
+  }, selector);
+}
+
+/** Clicks `css` if it is present. Returns whether anything was clicked. */
+async function clickSelector(page: Page, css: string, required = true) {
+  const clicked = await page.evaluate((sel) => {
+    const el = document.querySelector(sel) as HTMLElement | null;
+    el?.click();
+    return el !== null;
+  }, css);
+  if (required && !clicked) throw new Error(`no element matching ${css}`);
+  return clicked;
+}
+
+async function clickByText(page: Page, pattern: string, exact = false) {
+  await page.evaluate(
+    ({ pattern, exact }) => {
+      const re = new RegExp(exact ? `^\\s*${pattern}\\s*$` : pattern, 'i');
+      const button = [...document.querySelectorAll('button')].find((b) =>
+        re.test(b.textContent ?? ''),
+      );
+      if (!button) throw new Error(`no button matching ${pattern}`);
+      button.click();
+    },
+    { pattern, exact },
+  );
+}
+
+/**
+ * Captures one element, growing the viewport first if the target is taller than
+ * the window so that the whole element is on screen. The capture itself is a
+ * page screenshot with an explicit clip rather than an element screenshot,
+ * which keeps it out of the actionability path described above.
+ */
+async function capture(page: Page, selector: string, path: string, keepNav: boolean) {
+  await scrollToSection(page, selector);
+  await page.waitForTimeout(1200); // let the whileInView animations play out
+
+  const height = await page.evaluate(
+    (sel) => document.querySelector(sel)!.getBoundingClientRect().height,
+    selector,
+  );
+  const grow = height > VIEWPORT.height;
+  if (grow) {
+    await page.setViewportSize({
+      width: VIEWPORT.width,
+      height: Math.min(Math.ceil(height) + 80, MAX_CAPTURE_HEIGHT),
+    });
+    await scrollToSection(page, selector);
+    await page.waitForTimeout(1200); // settle the relayout the resize caused
+  }
+
+  const style = keepNav ? null : await page.addStyleTag({ content: HIDE_NAV_CSS });
+  // A viewport screenshot's clip is measured from the top-left of the viewport,
+  // not of the document, so these stay as `getBoundingClientRect` reports them.
+  // Intersecting with the viewport keeps the clip inside the captured image: a
+  // section taller than MAX_CAPTURE_HEIGHT yields as much as fits rather than
+  // an error.
+  const clip = await page.evaluate((sel) => {
+    const r = document.querySelector(sel)!.getBoundingClientRect();
+    const left = Math.max(0, r.left);
+    const top = Math.max(0, r.top);
+    const right = Math.min(window.innerWidth, r.right);
+    const bottom = Math.min(window.innerHeight, r.bottom);
+    return { x: left, y: top, width: right - left, height: bottom - top };
+  }, selector);
+  await page.screenshot({ path, clip, animations: 'disabled' });
+  if (style) await style.evaluate((el) => el.remove());
+
+  if (grow) {
+    await page.setViewportSize(VIEWPORT);
+    await page.waitForTimeout(600);
+  }
+}
+
 async function selectAlternative(page: Page, match: string) {
-  await page.getByRole('button', { name: new RegExp(match, 'i') }).first().click();
+  await clickByText(page, match);
   await page.waitForTimeout(500);
 }
 
@@ -55,22 +165,48 @@ async function selectGpu(page: Page, wantIdle: boolean) {
     for (let ix = 0; ix < 10; ix++) {
       await page.mouse.click(box.x + box.width * (0.18 + ix * 0.07), box.y + box.height * (0.18 + iy * 0.095));
       await page.waitForTimeout(120);
-      const aside = page.locator('aside');
-      if (await aside.count()) {
-        const status = await aside.locator('span').first().innerText();
+      /**
+       * Read in one evaluate rather than as separate locator calls. Clicking an
+       * already-selected tile toggles the inspector shut, and while it plays its
+       * exit animation the `<aside>` is still in the DOM with its contents
+       * unmounted — so a `count()` that sees a panel followed by a query for the
+       * status text inside it can wait forever for a span that will never arrive.
+       */
+      const status = await page.evaluate(
+        () => document.querySelector('aside')?.querySelector('span')?.textContent ?? null,
+      );
+      if (status !== null) {
         if (status.trim().startsWith('Idle') === wantIdle) {
           // The idle orbit will have drifted the camera while we were hunting;
           // return it to the default view so the figure composes consistently.
-          await page.locator('button[aria-label="Reset view"]').click();
+          await clickSelector(page, 'button[aria-label="Reset view"]');
           await page.waitForTimeout(600);
           return;
         }
-        await page.locator('aside button[aria-label="Close inspector"]').click();
+        // Best-effort: the panel may already be mid-exit, taking its button with it.
+        await clickSelector(page, 'aside button[aria-label="Close inspector"]', false);
         await page.waitForTimeout(80);
       }
     }
   }
   throw new Error(`could not select a ${wantIdle ? 'idle' : 'sold'} GPU`);
+}
+
+
+/** Runs all three structured advisory surfaces plus the explainer. */
+async function runAdvisory(page: Page) {
+  await scrollToSection(page, '#advisory');
+  await page.waitForTimeout(400);
+  for (const label of [
+    'Ask Claude for a recommendation',
+    'Ask Claude to build the risk register',
+    'Ask Claude to compare the alternatives',
+  ]) {
+    await clickByText(page, label);
+    await page.waitForTimeout(600);
+  }
+  await clickByText(page, 'Net Present Value', true);
+  await page.waitForTimeout(900);
 }
 
 const SHOTS: Shot[] = [
@@ -122,13 +258,24 @@ const SHOTS: Shot[] = [
     section: 'scenarios',
   },
   {
-    file: 'fig10_metrics_hybrid.png',
+    file: 'fig10_ai_verdict_vs_rules.png',
+    caption: 'Claude vs the deterministic rule-based verdict, side by side',
+    section: 'advisory-verdict',
+    setup: runAdvisory,
+  },
+  {
+    file: 'fig11_ai_comparison_explainer.png',
+    caption: 'Claude comparing the alternatives, and the on-demand metric explainer',
+    section: 'advisory-analysis',
+  },
+  {
+    file: 'fig12_metrics_hybrid.png',
     caption: 'Decision metrics for Alternative C, the hybrid option',
     section: 'metrics',
     setup: (page) => selectAlternative(page, 'Hybrid'),
   },
   {
-    file: 'fig11_ratio_metrics_suppressed.png',
+    file: 'fig13_ratio_metrics_suppressed.png',
     caption: 'Alternative B — ratio metrics suppressed because the option employs almost no capital',
     section: 'metrics',
     setup: (page) => selectAlternative(page, 'Rent 3-yr'),
@@ -147,6 +294,7 @@ async function main() {
   const page = await context.newPage();
 
   await page.goto(BASE_URL, { waitUntil: 'networkidle' });
+  await page.addStyleTag({ content: INSTANT_SCROLL_CSS });
   // Let fonts settle and the entrance animations finish before capturing.
   await page.waitForTimeout(2500);
 
@@ -156,13 +304,7 @@ async function main() {
     const path = resolve(OUT_DIR, shot.file);
 
     if (shot.section) {
-      await page.locator(`#${shot.section}`).scrollIntoViewIfNeeded();
-      // Give the whileInView animations time to play out.
-      await page.waitForTimeout(1200);
-
-      const style = shot.keepNav ? null : await page.addStyleTag({ content: HIDE_NAV_CSS });
-      await page.locator(`#${shot.section}`).screenshot({ path });
-      if (style) await style.evaluate((el) => el.remove());
+      await capture(page, `#${shot.section}`, path, shot.keepNav ?? false);
     } else {
       await page.screenshot({ path, fullPage: true });
     }

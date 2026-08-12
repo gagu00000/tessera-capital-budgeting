@@ -8,6 +8,7 @@ import { MetricsGrid } from './sections/MetricsGrid';
 import { BreakEven } from './sections/BreakEven';
 import { SensitivityLab } from './sections/SensitivityLab';
 import { ScenarioTriptych } from './sections/ScenarioTriptych';
+import { AiAdvisory } from './sections/AiAdvisory';
 import { useModelStore } from './store/useModelStore';
 import { money } from './lib/format';
 import { TONE_HEX } from './ui/primitives';
@@ -20,6 +21,7 @@ const NAV = [
   { id: 'breakeven', label: 'Break-even' },
   { id: 'sensitivity', label: 'Sensitivity' },
   { id: 'scenarios', label: 'Scenarios' },
+  { id: 'advisory', label: 'AI advisory' },
 ];
 
 export default function App() {
@@ -123,6 +125,7 @@ export default function App() {
         <BreakEven />
         <SensitivityLab />
         <ScenarioTriptych />
+        <AiAdvisory />
       </main>
 
       <footer className="border-t border-white/5 px-6 py-10 md:px-10">
