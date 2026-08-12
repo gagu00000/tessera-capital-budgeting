@@ -5,6 +5,9 @@ import { TheDecision } from './sections/TheDecision';
 import { AssumptionConsole } from './sections/AssumptionConsole';
 import { CashFlowLedger } from './sections/CashFlowLedger';
 import { MetricsGrid } from './sections/MetricsGrid';
+import { BreakEven } from './sections/BreakEven';
+import { SensitivityLab } from './sections/SensitivityLab';
+import { ScenarioTriptych } from './sections/ScenarioTriptych';
 import { useModelStore } from './store/useModelStore';
 import { money } from './lib/format';
 import { TONE_HEX } from './ui/primitives';
@@ -14,6 +17,9 @@ const NAV = [
   { id: 'assumptions', label: 'Assumptions' },
   { id: 'ledger', label: 'Cash flows' },
   { id: 'metrics', label: 'Metrics' },
+  { id: 'breakeven', label: 'Break-even' },
+  { id: 'sensitivity', label: 'Sensitivity' },
+  { id: 'scenarios', label: 'Scenarios' },
 ];
 
 export default function App() {
@@ -114,6 +120,9 @@ export default function App() {
         <AssumptionConsole />
         <CashFlowLedger />
         <MetricsGrid />
+        <BreakEven />
+        <SensitivityLab />
+        <ScenarioTriptych />
       </main>
 
       <footer className="border-t border-white/5 px-6 py-10 md:px-10">

@@ -21,6 +21,8 @@ import {
 } from './ratios';
 import { computeModel, computeDepreciation, fixedCostForYear } from './model';
 import { computeWacc } from './wacc';
+import { buildDrivers, computeTornado } from './sensitivity';
+import { computeScenarios } from './scenarios';
 import { ALT_A, ALT_C, WACC } from '../data/scenario';
 import type { ProjectInputs } from './types';
 
@@ -520,7 +522,66 @@ describe('Directional behaviour', () => {
 });
 
 // ===========================================================================
-// 13. Contractual options are correctly flagged as non-capital
+// 13. Sensitivity
+// ===========================================================================
+
+describe('Sensitivity', () => {
+  const drivers = buildDrivers(ALT_A);
+  const bars = computeTornado(ALT_A, drivers);
+
+  it('returns bars sorted by the width of their NPV swing', () => {
+    for (let i = 1; i < bars.length; i++) {
+      expect(bars[i - 1].swing).toBeGreaterThanOrEqual(bars[i].swing);
+    }
+  });
+
+  it('puts the switching value for the cost of capital exactly on the IRR', () => {
+    // This is an identity, not a coincidence. The switching value is the rate at
+    // which NPV becomes zero, and IRR is defined as the rate at which NPV is
+    // zero — so the two must agree. It cross-checks the sensitivity solver
+    // against the root finder, which share no code.
+    const base = computeModel(ALT_A);
+    const waccBar = bars.find((b) => b.driver.id === 'wacc')!;
+    expect(waccBar.switchingValue).not.toBeNull();
+    expect(waccBar.switchingValue!).toBeCloseTo(base.irr.value!, 6);
+  });
+
+  it('produces a zero NPV at every switching value it reports', () => {
+    for (const bar of bars) {
+      if (bar.switchingValue === null) continue;
+      const shocked = computeModel(bar.driver.apply(ALT_A, bar.switchingValue), {
+        skipBreakEven: true,
+        skipIrr: true,
+      });
+      expect(shocked.npv).toBeCloseTo(0, 2);
+    }
+  });
+
+  it('moves NPV the right way at each end of every driver range', () => {
+    // driver.min is defined as the adverse end and driver.max as the favourable
+    // one, so the NPV at min must never exceed the NPV at max.
+    for (const bar of bars) {
+      expect(bar.npvAtMin).toBeLessThan(bar.npvAtMax);
+    }
+  });
+});
+
+describe('Scenarios', () => {
+  const results = computeScenarios(ALT_A);
+  const npv = (id: string) => results.find((r) => r.definition.id === id)!.model.npv;
+
+  it('orders worst below base below best', () => {
+    expect(npv('worst')).toBeLessThan(npv('base'));
+    expect(npv('base')).toBeLessThan(npv('best'));
+  });
+
+  it('leaves the base case identical to the unmodified model', () => {
+    expect(npv('base')).toBeCloseTo(computeModel(ALT_A).npv, 6);
+  });
+});
+
+// ===========================================================================
+// 14. Contractual options are correctly flagged as non-capital
 // ===========================================================================
 
 describe('Capital intensity flag', () => {

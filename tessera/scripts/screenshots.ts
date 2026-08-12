@@ -107,13 +107,28 @@ const SHOTS: Shot[] = [
     section: 'metrics',
   },
   {
-    file: 'fig07_metrics_hybrid.png',
+    file: 'fig07_breakeven.png',
+    caption: 'Break-even analysis — cash, accounting and NPV thresholds',
+    section: 'breakeven',
+  },
+  {
+    file: 'fig08_sensitivity_tornado.png',
+    caption: 'Tornado chart with switching values, and the two-way grid',
+    section: 'sensitivity',
+  },
+  {
+    file: 'fig09_scenario_triptych.png',
+    caption: 'Best, base and worst case, with the outcome range',
+    section: 'scenarios',
+  },
+  {
+    file: 'fig10_metrics_hybrid.png',
     caption: 'Decision metrics for Alternative C, the hybrid option',
     section: 'metrics',
     setup: (page) => selectAlternative(page, 'Hybrid'),
   },
   {
-    file: 'fig08_ratio_metrics_suppressed.png',
+    file: 'fig11_ratio_metrics_suppressed.png',
     caption: 'Alternative B — ratio metrics suppressed because the option employs almost no capital',
     section: 'metrics',
     setup: (page) => selectAlternative(page, 'Rent 3-yr'),
