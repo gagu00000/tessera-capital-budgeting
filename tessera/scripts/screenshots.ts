@@ -43,43 +43,78 @@ async function selectAlternative(page: Page, match: string) {
   await page.waitForTimeout(500);
 }
 
+
+/**
+ * Clicks around the die until a GPU matching `wantIdle` is selected. Tile
+ * positions depend on the live camera, so a fixed coordinate cannot be relied
+ * on — sweeping until the inspector reports the right kind of unit can.
+ */
+async function selectGpu(page: Page, wantIdle: boolean) {
+  const box = (await page.locator('#cold-boot canvas').boundingBox())!;
+  for (let iy = 0; iy < 7; iy++) {
+    for (let ix = 0; ix < 10; ix++) {
+      await page.mouse.click(box.x + box.width * (0.18 + ix * 0.07), box.y + box.height * (0.18 + iy * 0.095));
+      await page.waitForTimeout(120);
+      const aside = page.locator('aside');
+      if (await aside.count()) {
+        const status = await aside.locator('span').first().innerText();
+        if (status.trim().startsWith('Idle') === wantIdle) {
+          // The idle orbit will have drifted the camera while we were hunting;
+          // return it to the default view so the figure composes consistently.
+          await page.locator('button[aria-label="Reset view"]').click();
+          await page.waitForTimeout(600);
+          return;
+        }
+        await page.locator('aside button[aria-label="Close inspector"]').click();
+        await page.waitForTimeout(80);
+      }
+    }
+  }
+  throw new Error(`could not select a ${wantIdle ? 'idle' : 'sold'} GPU`);
+}
+
 const SHOTS: Shot[] = [
   {
     file: 'fig01_hero_cold_boot.png',
-    caption: 'Application landing view with live model readout',
+    caption: 'Landing view — interactive GPU die with live model readout',
     section: 'cold-boot',
     keepNav: true,
   },
   {
-    file: 'fig02_decision_briefing.png',
+    file: 'fig02_gpu_inspector_idle.png',
+    caption: 'Clicking an idle GPU: full capital and fixed-cost share against zero revenue',
+    section: 'cold-boot',
+    setup: (page) => selectGpu(page, true),
+  },
+  {
+    file: 'fig03_decision_briefing.png',
     caption: 'Investment decision and the four alternatives under appraisal',
     section: 'decision',
   },
   {
-    file: 'fig03_assumption_console.png',
+    file: 'fig04_assumption_console.png',
     caption: 'Assumption console — all required inputs, with derived WACC',
     section: 'assumptions',
   },
   {
-    file: 'fig04_cashflow_ledger.png',
+    file: 'fig05_cashflow_ledger.png',
     caption: 'Initial, annual operating and terminal cash flows',
     section: 'ledger',
   },
   {
-    file: 'fig05_metrics_grid.png',
+    file: 'fig06_metrics_grid.png',
     caption: 'Decision metrics for Alternative A, with runtime verification',
     section: 'metrics',
   },
   {
-    file: 'fig06_metrics_hybrid.png',
+    file: 'fig07_metrics_hybrid.png',
     caption: 'Decision metrics for Alternative C, the hybrid option',
     section: 'metrics',
     setup: (page) => selectAlternative(page, 'Hybrid'),
   },
   {
-    file: 'fig07_ratio_metrics_suppressed.png',
-    caption:
-      'Alternative B — ratio metrics suppressed because the option employs almost no capital',
+    file: 'fig08_ratio_metrics_suppressed.png',
+    caption: 'Alternative B — ratio metrics suppressed because the option employs almost no capital',
     section: 'metrics',
     setup: (page) => selectAlternative(page, 'Rent 3-yr'),
   },

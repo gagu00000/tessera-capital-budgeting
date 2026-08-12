@@ -112,56 +112,68 @@ h1, h2, h3, h4 {
   margin: 0;
 }
 
-.numeric {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+@layer components {
+  .numeric {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
 }
 
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--color-slate-400);
+@layer components {
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-slate-400);
+  }
 }
 
 /* --------------------------------------------------------------------------
    Glass surfaces
+
+   Declared inside @layer components so Tailwind's utility layer, which comes
+   afterwards, can still override them. Unlayered rules beat every utility of
+   equal specificity regardless of source order, which silently broke `absolute`
+   on any element also carrying `glass`: the `position: relative` below won and
+   the element stayed in normal flow instead of being pinned.
    -------------------------------------------------------------------------- */
 
-.glass {
-  position: relative;
-  background: var(--glass-fill);
-  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-  border: 1px solid var(--glass-stroke);
-  border-radius: var(--radius-glass);
-  box-shadow:
-    0 1px 0 0 rgb(255 255 255 / 0.06) inset,
-    0 24px 60px -28px rgb(0 0 0 / 0.9);
-}
+@layer components {
+  .glass {
+    position: relative;
+    background: var(--glass-fill);
+    backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+    border: 1px solid var(--glass-stroke);
+    border-radius: var(--radius-glass);
+    box-shadow:
+      0 1px 0 0 rgb(255 255 255 / 0.06) inset,
+      0 24px 60px -28px rgb(0 0 0 / 0.9);
+  }
 
-/* Tinted inner glow, driven by whichever semantic hue the panel is carrying. */
-.glass[data-tone]::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0.5;
-  background: radial-gradient(
-    120% 100% at 50% -20%,
-    rgb(var(--tone-rgb) / 0.16),
-    transparent 62%
-  );
-}
+  /* Tinted inner glow, driven by whichever semantic hue the panel is carrying. */
+  .glass[data-tone]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0.5;
+    background: radial-gradient(
+      120% 100% at 50% -20%,
+      rgb(var(--tone-rgb) / 0.16),
+      transparent 62%
+    );
+  }
 
-.glass[data-tone='photon']  { --tone-rgb: var(--rgb-photon); }
-.glass[data-tone='plasma']  { --tone-rgb: var(--rgb-plasma); }
-.glass[data-tone='amber']   { --tone-rgb: var(--rgb-amber); }
-.glass[data-tone='verdant'] { --tone-rgb: var(--rgb-verdant); }
-.glass[data-tone='iris']    { --tone-rgb: var(--rgb-iris); }
+  .glass[data-tone='photon']  { --tone-rgb: var(--rgb-photon); }
+  .glass[data-tone='plasma']  { --tone-rgb: var(--rgb-plasma); }
+  .glass[data-tone='amber']   { --tone-rgb: var(--rgb-amber); }
+  .glass[data-tone='verdant'] { --tone-rgb: var(--rgb-verdant); }
+  .glass[data-tone='iris']    { --tone-rgb: var(--rgb-iris); }
+}
 
 /* --------------------------------------------------------------------------
    Form controls
