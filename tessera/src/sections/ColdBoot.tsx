@@ -1,28 +1,30 @@
 /**
  * Section 0 — Cold Boot.
  *
- * The hero. A WebGL silicon die powers on beneath the title, one tile per GPU in
- * the cluster under appraisal. Everything it shows is bound to the model: the
- * lit share is peak utilisation, the hue shifts toward iris as the cluster runs
- * hotter, and the particles crossing it are GPU-hours — cyan where consumed
- * internally, magenta where resold.
+ * The hero. A WebGL GPU cluster powers on beneath the title — four chassis
+ * trays of eight accelerator modules, one per GPU under appraisal. Everything
+ * it shows is bound to the model: the lit share is peak utilisation, the hue
+ * shifts toward iris as the cluster runs hotter, and the particles crossing it
+ * are GPU-hours — cyan where consumed internally, magenta where resold.
  *
- * The die is inspectable. Clicking a tile opens the unit economics of that
- * single GPU, allocated from the fleet model. Clicking an idle tile is the point
- * of the whole thing: it shows a GPU carrying a full share of capital and fixed
- * cost against no revenue whatsoever.
+ * The cluster is inspectable. Clicking a module opens the unit economics of
+ * that single GPU, allocated from the fleet model. Clicking an idle module is
+ * the point of the whole thing: it shows a GPU carrying a full share of capital
+ * and fixed cost against no revenue whatsoever.
  *
- * Composition matters here: the die occupies the lower frame and the type sits
- * above it. An earlier version centred both, so the title fought the lattice for
- * the same space and the tiles read as an empty loading skeleton behind text.
+ * Composition matters here: the cluster occupies the lower frame and the type
+ * sits above it. An earlier version centred both, so the title fought the
+ * hardware for the same space and it read as an empty loading skeleton behind
+ * text.
  */
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useModelStore } from '../store/useModelStore';
 import { money, percent, hours as fmtHours } from '../lib/format';
 import { computeGpuUnitEconomics } from '../lib/perGpu';
 import { TONE_HEX } from '../ui/primitives';
+import { TweenedNumber } from '../ui/TweenedNumber';
 import { useSceneCapability } from '../scene/useSceneCapability';
 
 /**
@@ -64,6 +66,25 @@ export function ColdBoot() {
 
   const interactive = capability.resolved && capability.enabled;
 
+  /**
+   * The scene renders only while the hero is on screen. This is a nine-section
+   * page, and without this the cluster holds the GPU at sixty frames a second
+   * the whole way down it — for a canvas the reader scrolled past minutes ago.
+   */
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [onScreen, setOnScreen] = useState(true);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setOnScreen(entry.isIntersecting),
+      { rootMargin: '120px' }, // resume just before it comes back into view
+    );
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, [interactive]);
+
   return (
     <section
       id="cold-boot"
@@ -71,7 +92,7 @@ export function ColdBoot() {
     >
       {/* The die, filling the lower frame. Pointer events are enabled so tiles
           can be picked; the text above sits on a higher stacking layer. */}
-      <div className="absolute inset-x-0 bottom-0 top-[36vh]">
+      <div ref={stageRef} className="absolute inset-x-0 bottom-0 top-[36vh]">
         {interactive ? (
           <Suspense fallback={null}>
             <GpuDie
@@ -82,6 +103,7 @@ export function ColdBoot() {
               onSelect={setSelectedIndex}
               zoomCommand={zoomCommand}
               resetSeq={resetSeq}
+              active={onScreen}
             />
           </Suspense>
         ) : (
@@ -141,14 +163,30 @@ export function ColdBoot() {
           transition={{ duration: 0.8, delay: 0.55 }}
           className="mt-8 flex flex-wrap items-center justify-center gap-3"
         >
-          <HeroStat label="Outlay" value={`AED ${money(Math.abs(model.cashFlows[0]))}`} tone="amber" />
+          <HeroStat
+            label="Outlay"
+            value={Math.abs(model.cashFlows[0])}
+            format={(v) => `AED ${money(v)}`}
+            tone="amber"
+          />
           <HeroStat
             label="NPV"
-            value={`AED ${money(model.npv)}`}
+            value={model.npv}
+            format={(v) => `AED ${money(v)}`}
             tone={model.npv >= 0 ? 'verdant' : 'plasma'}
           />
-          <HeroStat label="IRR" value={percent(model.irr.value)} tone="photon" />
-          <HeroStat label="Hurdle" value={percent(model.inputs.wacc)} tone="iris" />
+          <HeroStat
+            label="IRR"
+            value={model.irr.value ?? 0}
+            format={(v) => (model.irr.value === null ? '—' : percent(v))}
+            tone="photon"
+          />
+          <HeroStat
+            label="Hurdle"
+            value={model.inputs.wacc}
+            format={percent}
+            tone="iris"
+          />
         </motion.div>
       </div>
 
@@ -339,10 +377,12 @@ function LegendItem({ colour, label }: { colour: string; label: string }) {
 function HeroStat({
   label,
   value,
+  format,
   tone,
 }: {
   label: string;
-  value: string;
+  value: number;
+  format: (value: number) => string;
   tone: 'photon' | 'plasma' | 'amber' | 'verdant' | 'iris';
 }) {
   return (
@@ -350,7 +390,7 @@ function HeroStat({
       <div className="relative z-10">
         <p className="text-[0.62rem] uppercase tracking-[0.16em] text-slate-500">{label}</p>
         <p className="numeric mt-1 text-sm" style={{ color: TONE_HEX[tone] }}>
-          {value}
+          <TweenedNumber value={value} format={format} />
         </p>
       </div>
     </div>

@@ -94,6 +94,13 @@ export interface DieProps {
   zoomCommand: { direction: 1 | -1; seq: number } | null;
   /** Bumped by the caller to request a return to the default view. */
   resetSeq: number;
+  /**
+   * Whether the hero is on screen. The render loop stops when it is not: this
+   * is a long page, and a cluster nobody is looking at has no business holding
+   * the GPU at sixty frames a second while the reader is eight sections below
+   * it.
+   */
+  active: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -576,6 +583,7 @@ export function GpuDie({
   onSelect,
   zoomCommand,
   resetSeq,
+  active,
 }: DieProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -589,6 +597,7 @@ export function GpuDie({
 
   return (
     <Canvas
+      frameloop={active ? 'always' : 'never'}
       dpr={[1, 2]}
       camera={{ position: [HOME.x, HOME.y, HOME.z], fov: 32 }}
       gl={{ antialias: true, alpha: true }}

@@ -12,6 +12,7 @@ import { AiAdvisory } from './sections/AiAdvisory';
 import { useModelStore } from './store/useModelStore';
 import { money } from './lib/format';
 import { TONE_HEX } from './ui/primitives';
+import { TweenedNumber } from './ui/TweenedNumber';
 
 const NAV = [
   { id: 'decision', label: 'Decision' },
@@ -110,7 +111,7 @@ export default function App() {
               className="numeric text-[0.8rem]"
               style={{ color: model.npv >= 0 ? TONE_HEX.verdant : TONE_HEX.plasma }}
             >
-              {money(model.npv)}
+              <TweenedNumber value={model.npv} format={money} />
             </span>
           </div>
         </div>

@@ -296,7 +296,9 @@ export function AiAdvisory() {
       </div>
 
       {/* Comparator + explainer */}
-      <div id="advisory-analysis" className="mt-5 grid gap-5 lg:grid-cols-2">
+      {/* items-start, so a short panel stops at its content instead of being
+          stretched to match a much taller neighbour and trailing dead space. */}
+      <div id="advisory-analysis" className="mt-5 grid items-start gap-5 lg:grid-cols-2">
         <GlassPanel tone="verdant" className="p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <p className="eyebrow">Comparison of alternatives</p>
