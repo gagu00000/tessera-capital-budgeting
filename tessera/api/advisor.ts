@@ -12,8 +12,18 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
-import { SHARED_SYSTEM, TASK_PROMPTS } from '../src/ai/prompts';
-import { riskRegisterSchema, comparisonSchema, verdictSchema } from '../src/ai/schemas';
+/**
+ * These two carry explicit `.js` extensions and the type-only imports below do
+ * not, which looks inconsistent but is not.
+ *
+ * This file is transpiled rather than bundled, and then run by Node's ESM
+ * loader, which does not guess extensions the way a bundler does — an
+ * extensionless specifier resolves fine under Vite and under `tsc`, and then
+ * throws ERR_MODULE_NOT_FOUND at runtime in production. Type-only imports are
+ * erased before Node ever sees them, so they are unaffected.
+ */
+import { SHARED_SYSTEM, TASK_PROMPTS } from '../src/ai/prompts.js';
+import { riskRegisterSchema, comparisonSchema, verdictSchema } from '../src/ai/schemas.js';
 import type { AdvisorTask } from '../src/ai/schemas';
 
 /**
@@ -41,11 +51,17 @@ const json = (body: unknown, status = 200) =>
     headers: { 'content-type': 'application/json' },
   });
 
-export default async function handler(request: Request): Promise<Response> {
-  if (request.method !== 'POST') {
-    return json({ error: 'method_not_allowed' }, 405);
-  }
-
+/**
+ * Exported as a named HTTP method rather than as a default export.
+ *
+ * Vercel reads a default export as the legacy `(req, res) => void` signature
+ * and discards anything it returns, so a handler written against the Web API
+ * never answers and the request hangs until the function times out — a 504
+ * rather than an error, which is the more confusing failure. A named method
+ * export is unambiguously the fetch-style signature, and it also means the
+ * platform rejects anything that is not a POST before this code runs.
+ */
+export async function POST(request: Request): Promise<Response> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     // Signals the client to fall back to its pre-generated commentary rather

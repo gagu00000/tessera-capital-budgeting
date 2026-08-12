@@ -33,3 +33,6 @@ __pycache__/
 # Logs
 *.log
 npm-debug.log*
+
+# Vercel CLI project link
+.vercel
