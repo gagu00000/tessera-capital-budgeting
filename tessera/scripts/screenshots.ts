@@ -161,9 +161,15 @@ async function selectAlternative(page: Page, match: string) {
  */
 async function selectGpu(page: Page, wantIdle: boolean) {
   const box = (await page.locator('#cold-boot canvas').boundingBox())!;
-  for (let iy = 0; iy < 7; iy++) {
-    for (let ix = 0; ix < 10; ix++) {
-      await page.mouse.click(box.x + box.width * (0.18 + ix * 0.07), box.y + box.height * (0.18 + iy * 0.095));
+  /**
+   * Bounds of the cluster within the canvas, as fractions. They reach well down
+   * the canvas on purpose: the idle modules are the last five of the thirty-two,
+   * so they sit in the near row at the bottom of the frame, and a sweep that
+   * stopped higher up could only ever find sold ones.
+   */
+  for (let iy = 0; iy < 8; iy++) {
+    for (let ix = 0; ix < 12; ix++) {
+      await page.mouse.click(box.x + box.width * (0.25 + ix * 0.05), box.y + box.height * (0.24 + iy * 0.095));
       await page.waitForTimeout(120);
       /**
        * Read in one evaluate rather than as separate locator calls. Clicking an
@@ -193,6 +199,32 @@ async function selectGpu(page: Page, wantIdle: boolean) {
 }
 
 
+/**
+ * Puts the cluster back to its default framing and holds it there.
+ *
+ * The idle orbit means the hero sits at a different angle every second, so a
+ * capture taken whenever the script happened to get there was neither well
+ * composed nor reproducible — which is the whole point of driving these by
+ * script. The orbit stops for good once the viewer takes control, so a token
+ * drag ends it; the reset that follows restores the exact default camera.
+ *
+ * The drag is deliberately placed to the right of the cluster, on empty
+ * substrate, so it cannot land on a module and select one.
+ */
+async function restView(page: Page) {
+  const box = (await page.locator('#cold-boot canvas').boundingBox())!;
+  const x = box.x + box.width * 0.93;
+  const y = box.y + box.height * 0.5;
+
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + 4, y, { steps: 2 });
+  await page.mouse.up();
+
+  await clickSelector(page, 'button[aria-label="Reset view"]');
+  await page.waitForTimeout(900); // let the orbit damping settle onto HOME
+}
+
 /** Runs all three structured advisory surfaces plus the explainer. */
 async function runAdvisory(page: Page) {
   await scrollToSection(page, '#advisory');
@@ -212,8 +244,9 @@ async function runAdvisory(page: Page) {
 const SHOTS: Shot[] = [
   {
     file: 'fig01_hero_cold_boot.png',
-    caption: 'Landing view — interactive GPU die with live model readout',
+    caption: 'Landing view — interactive GPU cluster with live model readout',
     section: 'cold-boot',
+    setup: restView,
     keepNav: true,
   },
   {

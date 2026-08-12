@@ -46,6 +46,13 @@ export function SensitivityLab() {
     (b) => Math.sign(b.npvAtMin) !== Math.sign(b.npvAtMax),
   );
 
+  // How much of the crossed range is loss-making, counted rather than eyeballed
+  // off the colours.
+  const negativeCells = cells.filter((c) => c.npv < 0).length;
+  const negativeShare = cells.length
+    ? Math.round((negativeCells / cells.length) * 100)
+    : 0;
+
   const percentOfOutlay = (
     (Math.abs(model.npv) / Math.abs(model.cashFlows[0])) *
     100
@@ -137,29 +144,50 @@ export function SensitivityLab() {
       {driverX && driverY && (
         <div className="mt-5">
           <GlassPanel tone="photon" className="p-5">
-            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="eyebrow mb-1.5">Two-way grid</p>
-                <h3 className="text-base">
-                  {driverY.label}{' '}
-                  <span className="text-slate-500">against</span> {driverX.label}
-                </h3>
-              </div>
-              <p className="max-w-md text-[0.7rem] leading-relaxed text-slate-500">
-                The two widest bars from the tornado, crossed. A tornado moves one driver at
-                a time and cannot show that two individually survivable moves are fatal
-                together — the boundary between the green and magenta regions is exactly
-                that.
-              </p>
+            <div className="mb-4">
+              <p className="eyebrow mb-1.5">Two-way grid</p>
+              <h3 className="text-base">
+                {driverY.label} <span className="text-slate-500">against</span> {driverX.label}
+              </h3>
             </div>
-            <Heatmap2D
-              cells={cells}
-              driverX={driverX}
-              driverY={driverY}
-              steps={GRID_STEPS}
-              baseX={driverX.base}
-              baseY={driverY.base}
-            />
+
+            {/* The grid is capped at a readable square; the prose takes the rest
+                of the width rather than the chart stretching to fill it. */}
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,440px)_1fr]">
+              <Heatmap2D
+                cells={cells}
+                driverX={driverX}
+                driverY={driverY}
+                steps={GRID_STEPS}
+                baseX={driverX.base}
+                baseY={driverY.base}
+              />
+
+              <div className="space-y-3 text-[0.72rem] leading-relaxed text-slate-500">
+                <p>
+                  The two widest bars from the tornado, crossed. A tornado moves one driver
+                  at a time and cannot show that two individually survivable moves are fatal
+                  together — the boundary between the green and magenta regions is exactly
+                  that.
+                </p>
+                <p>
+                  Of the {cells.length} combinations plotted,{' '}
+                  <span className="numeric text-slate-300">{negativeCells}</span> produce a
+                  negative NPV — <span className="numeric text-slate-300">{negativeShare}%</span>{' '}
+                  of the grid. The base case sits on the amber outline, close enough to the
+                  boundary that the decision is set by which side of it the two drivers
+                  actually land, not by the base case itself.
+                </p>
+                <p>
+                  {/* Labels are used as written — lower-casing them turned
+                      "GPU price erosion" into "gpu price erosion". */}
+                  Read across a row to hold {driverY.label} fixed and vary {driverX.label}; read
+                  down a column for the reverse. Where the
+                  boundary runs diagonally rather than straight, the two drivers interact —
+                  an adverse move in one narrows the tolerance for the other.
+                </p>
+              </div>
+            </div>
           </GlassPanel>
         </div>
       )}

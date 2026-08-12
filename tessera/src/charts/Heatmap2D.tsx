@@ -52,7 +52,13 @@ export function Heatmap2D({
 
   return (
     <div>
-      <div className="flex gap-3">
+      {/*
+        Capped, because the cells are square: left to fill its container the
+        grid is as tall as it is wide, so a full-width panel produced a grid
+        over a thousand pixels tall that no longer fitted on one screen — or
+        one page of the report.
+      */}
+      <div className="flex max-w-[420px] gap-3">
         {/* Y axis */}
         <div className="flex shrink-0 flex-col justify-between py-0.5 text-right">
           {[...yValues].reverse().map((v, i) => (

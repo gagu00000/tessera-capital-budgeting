@@ -1,19 +1,25 @@
 /**
- * The GPU die — the application's central visual motif, and an inspectable one.
+ * The GPU cluster — the application's central visual motif, and an inspectable
+ * one.
  *
- * A 32-tile silicon lattice, one tile per GPU in the cluster under appraisal,
- * rendered in perspective. It is not decoration: every visual property is bound
- * to a number from the model.
+ * The layout mirrors the hardware actually being appraised: 32 SXM modules as
+ * four HGX baseboards of eight, which is how a 32-GPU H200 deployment is really
+ * built. Each module is drawn as a package under a finned heatsink, seated in a
+ * chassis tray with a lit front bezel — the silhouette of accelerator hardware
+ * rather than an abstract tile.
  *
- *   tile lit / dark        one per GPU, lit share = peak utilisation
- *   emissive hue           cyan at low thermal load, shifting toward iris as
+ * It is not decoration: every visual property is bound to a number from the
+ * model.
+ *
+ *   module lit / dark      one per GPU, lit share = peak utilisation
+ *   bezel LED hue          cyan at low thermal load, shifting toward iris as
  *                          the cluster runs hotter (i.e. as utilisation rises)
- *   tile height            lifts with utilisation, so the die visibly "loads"
- *   scan pulse             a wave crossing the die
- *   token stream           particles crossing the lattice — cyan for internally
+ *   heatsink glow          fins pick up the load colour from beneath
+ *   scan pulse             a wave crossing the racks
+ *   token stream           particles crossing the trays — cyan for internally
  *                          consumed GPU-hours, magenta for hours resold
  *
- * Interaction: drag to orbit, click a tile to inspect it. Wheel zoom is
+ * Interaction: drag to orbit, click a module to inspect it. Wheel zoom is
  * deliberately NOT bound. The canvas is full-bleed behind the hero, so capturing
  * the wheel would trap the page scroll whenever the cursor sat over it — zoom is
  * offered on explicit controls instead.
@@ -28,18 +34,31 @@ import { OrbitControls } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 
+/** Eight SXM modules per baseboard, four baseboards — a 32-GPU HGX deployment. */
 const COLUMNS = 8;
 const ROWS = 4;
-const TILE = 0.54;
+
+const MODULE_W = 0.54;
+const MODULE_D = 0.4;
+const MODULE_H = 0.15;
+
 /**
- * Generous relative to the tile, because rows run away from the camera and are
- * heavily foreshortened — a gap that looks ample in plan closes up to nothing
- * at this viewing angle and the rows merge into solid strips.
+ * Row pitch is much larger than column pitch, which is what makes the four
+ * trays read as separate servers rather than one continuous field. Rows also
+ * run away from the camera and are heavily foreshortened, so a gap that looks
+ * ample in plan closes to nothing at this viewing angle.
  */
-const GAP = 0.17;
-const PITCH = TILE + GAP;
+const COL_PITCH = 0.71;
+const ROW_PITCH = 0.85;
+
+/** Fins per heatsink. The stack is what makes a box read as a GPU. */
+const FINS = 6;
+const FIN_THICKNESS = 0.022;
+const FIN_HEIGHT = 0.1;
+const FIN_SPAN = MODULE_D * 0.82;
 
 export const TILE_TOTAL = COLUMNS * ROWS;
+const FIN_TOTAL = TILE_TOTAL * FINS;
 
 const COLOUR = {
   photon: new THREE.Color('#38e8ff'),
@@ -53,8 +72,14 @@ const HUE_PHOTON = 0.519; // #38e8ff
 const HUE_IRIS = 0.686; // #8b7cff
 
 const MIN_DISTANCE = 3.4;
-const MAX_DISTANCE = 9;
-const HOME = new THREE.Vector3(0, 4.8, 3.6);
+const MAX_DISTANCE = 12;
+/**
+ * Further back than the flat lattice needed. Separating the rows into trays
+ * made the floor deeper, and the modules now stand proud of it, so the same
+ * framing overflowed the canvas at the near edge. The ratio of the components
+ * is unchanged, which keeps the viewing angle exactly as it was.
+ */
+const HOME = new THREE.Vector3(0, 7.4, 5.55);
 
 export interface DieProps {
   /** Fraction of tiles lit, 0..1. */
@@ -87,14 +112,14 @@ export interface TileSpec {
 
 export const TILE_SPECS: TileSpec[] = (() => {
   const specs: TileSpec[] = [];
-  const originX = (-(COLUMNS - 1) * PITCH) / 2;
-  const originZ = (-(ROWS - 1) * PITCH) / 2;
+  const originX = (-(COLUMNS - 1) * COL_PITCH) / 2;
+  const originZ = (-(ROWS - 1) * ROW_PITCH) / 2;
   const maxRadial = Math.hypot(originX, originZ);
 
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLUMNS; c++) {
-      const x = originX + c * PITCH;
-      const z = originZ + r * PITCH;
+      const x = originX + c * COL_PITCH;
+      const z = originZ + r * ROW_PITCH;
       specs.push({
         index: r * COLUMNS + c,
         x,
@@ -112,7 +137,24 @@ export const TILE_SPECS: TileSpec[] = (() => {
 // Tiles
 // ---------------------------------------------------------------------------
 
-function Tiles({
+/**
+ * Per-module state, computed once per frame and then consumed by each of the
+ * three instanced meshes that together make up a module. Deriving it in one
+ * place keeps the package, its heatsink and its bezel LED from drifting out of
+ * agreement about what the same GPU is doing.
+ */
+interface ModuleState {
+  lit: boolean;
+  selected: boolean;
+  hovered: boolean;
+  /** Travelling activity wave, 0..1. */
+  scan: number;
+  /** Forward slide out of the tray, as if pulled for inspection. */
+  slide: number;
+  lift: number;
+}
+
+function Modules({
   utilisation,
   thermal,
   selectedIndex,
@@ -129,7 +171,10 @@ function Tiles({
 }) {
   const litCount = Math.round(TILE_TOTAL * utilisation);
 
-  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const bodyRef = useRef<THREE.InstancedMesh>(null);
+  const finRef = useRef<THREE.InstancedMesh>(null);
+  const bezelRef = useRef<THREE.InstancedMesh>(null);
+
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const colour = useMemo(() => new THREE.Color(), []);
 
@@ -137,105 +182,177 @@ function Tiles({
    * The per-instance colour buffer must exist before the material's shader is
    * compiled. Three.js creates it lazily on the first setColorAt call, and if
    * that first call happens inside useFrame the program has already been built
-   * without USE_INSTANCING_COLOR — every tile then renders at the material's
-   * plain white and the entire thermal reading is lost. Allocating it up front
-   * in a layout effect avoids depending on that ordering.
+   * without USE_INSTANCING_COLOR — every instance then renders at the
+   * material's plain white and the entire thermal reading is lost. Allocating
+   * it up front in a layout effect avoids depending on that ordering.
    */
   useLayoutEffect(() => {
-    const mesh = meshRef.current;
-    if (!mesh) return;
-    mesh.instanceColor = new THREE.InstancedBufferAttribute(
-      new Float32Array(TILE_TOTAL * 3).fill(1),
-      3,
-    );
-    mesh.instanceColor.needsUpdate = true;
-    // The material is a single material here, but the typed property allows an
-    // array, so narrow before touching it.
-    if (!Array.isArray(mesh.material)) mesh.material.needsUpdate = true;
+    for (const [ref, count] of [
+      [bodyRef, TILE_TOTAL],
+      [finRef, FIN_TOTAL],
+      [bezelRef, TILE_TOTAL],
+    ] as const) {
+      const mesh = ref.current;
+      if (!mesh) continue;
+      mesh.instanceColor = new THREE.InstancedBufferAttribute(
+        new Float32Array(count * 3).fill(1),
+        3,
+      );
+      mesh.instanceColor.needsUpdate = true;
+      // The material is a single material here, but the typed property allows
+      // an array, so narrow before touching it.
+      if (!Array.isArray(mesh.material)) mesh.material.needsUpdate = true;
+    }
   }, []);
 
+  /** The load colour for a module: an HSL hue arc from photon cyan to iris. */
+  const loadColour = (target: THREE.Color, scan: number, lightness: number) => {
+    /**
+     * Interpolated in HSL rather than RGB. Lerping the RGB values of two
+     * palette colours produces mud whenever the endpoints sit far apart on the
+     * colour wheel, because the straight line between them passes through the
+     * desaturated centre — cyan and amber are very nearly complementary, so
+     * that path ran straight through grey.
+     *
+     * Lightness is capped well below 1.0: these values feed an unclamped bloom
+     * pass, and anything near full brightness clips to white, destroying the
+     * hue that carries the thermal reading.
+     */
+    const hue = HUE_PHOTON + (HUE_IRIS - HUE_PHOTON) * (thermal * 0.5 + scan * 0.32);
+    target.setHSL(hue, 0.92, Math.min(lightness, 0.5));
+  };
+
   useFrame(({ clock }) => {
-    const mesh = meshRef.current;
-    if (!mesh) return;
+    const body = bodyRef.current;
+    const fins = finRef.current;
+    const bezels = bezelRef.current;
+    if (!body || !fins || !bezels) return;
     const t = clock.getElapsedTime();
 
     for (const spec of TILE_SPECS) {
-      const isLit = spec.index < litCount;
-      const isSelected = spec.index === selectedIndex;
-      const isHovered = spec.index === hoveredIndex;
+      const lit = spec.index < litCount;
+      const selected = spec.index === selectedIndex;
+      const hovered = spec.index === hoveredIndex;
 
-      // A wave travelling across the die on the x axis, so the surface reads as
-      // active silicon rather than a static grid.
+      // A wave travelling across the racks on the x axis, so the cluster reads
+      // as running hardware rather than a static model of it.
       const scan = Math.sin(t * 0.9 - spec.x * 0.55) * 0.5 + 0.5;
       const breathe = Math.sin(t * 0.6 + spec.radial * 2.4) * 0.5 + 0.5;
 
-      // Kept deliberately thin. At this viewing angle the side faces of a
-      // tall tile occlude the gap to the row behind it, and the lattice reads
-      // as eight solid strips however wide the gap is made.
-      let lift = isLit ? 0.028 + scan * 0.022 + utilisation * 0.03 : 0.008;
-      if (isSelected) lift += 0.1;
-      else if (isHovered) lift += 0.04;
+      const state: ModuleState = {
+        lit,
+        selected,
+        hovered,
+        scan,
+        // Selecting slides the module forward out of its tray, the way a sled
+        // is pulled from a rack to be looked at.
+        slide: selected ? 0.15 : hovered ? 0.05 : 0,
+        lift: selected ? 0.03 : 0,
+      };
 
-      dummy.position.set(spec.x, lift / 2, spec.z);
-      dummy.scale.set(1, Math.max(lift, 0.006) / 0.06, 1);
+      const cx = spec.x;
+      const cy = MODULE_H / 2 + state.lift;
+      const cz = spec.z + state.slide;
+
+      // --- package ---------------------------------------------------------
+      dummy.position.set(cx, cy, cz);
+      dummy.scale.set(1, 1, 1);
+      dummy.rotation.set(0, 0, 0);
       dummy.updateMatrix();
-      mesh.setMatrixAt(spec.index, dummy.matrix);
+      body.setMatrixAt(spec.index, dummy.matrix);
 
-      if (isSelected) {
-        colour.copy(COLOUR.amber).multiplyScalar(0.5);
-      } else if (isLit) {
-        /**
-         * Interpolated in HSL, along the hue arc from photon cyan to iris.
-         *
-         * The obvious approach — lerping the RGB values of two palette colours —
-         * produces mud whenever the endpoints sit far apart on the colour wheel,
-         * because the straight line between them passes through the desaturated
-         * centre. Cyan and amber are very nearly complementary, so that path ran
-         * straight through grey and every lit tile rendered as blue-grey.
-         *
-         * Lightness is deliberately capped well below 1.0: these values feed an
-         * unclamped bloom pass, and anything near full brightness clips to white,
-         * destroying the hue that carries the thermal reading.
-         */
-        const hue = HUE_PHOTON + (HUE_IRIS - HUE_PHOTON) * (thermal * 0.5 + scan * 0.32);
-        const lightness = (0.15 + scan * 0.17 + breathe * 0.05) * (isHovered ? 1.5 : 1);
-        colour.setHSL(hue, 0.92, Math.min(lightness, 0.42));
-      } else {
-        colour.copy(COLOUR.dark).multiplyScalar(isHovered ? 3.5 : 1);
+      if (selected) colour.set('#3a2d16');
+      else if (lit) colour.setHSL(HUE_PHOTON, 0.32, hovered ? 0.3 : 0.17);
+      else colour.setRGB(0.085, 0.092, 0.112).multiplyScalar(hovered ? 2.4 : 1);
+      body.setColorAt(spec.index, colour);
+
+      // --- heatsink fins ---------------------------------------------------
+      for (let f = 0; f < FINS; f++) {
+        const offset = (f / (FINS - 1) - 0.5) * FIN_SPAN;
+        dummy.position.set(cx, MODULE_H + FIN_HEIGHT / 2 + state.lift, cz + offset);
+        dummy.scale.set(1, 1, 1);
+        dummy.updateMatrix();
+        fins.setMatrixAt(spec.index * FINS + f, dummy.matrix);
+
+        // Fins catch the glow from the package beneath, brightest at the base
+        // of the stack, so the heatsink reads as lit from within.
+        if (selected) {
+          colour.copy(COLOUR.amber).multiplyScalar(0.55);
+        } else if (lit) {
+          loadColour(colour, scan, 0.25 + scan * 0.035 + breathe * 0.015);
+        } else {
+          colour.setRGB(0.135, 0.142, 0.163).multiplyScalar(hovered ? 2.2 : 1);
+        }
+        fins.setColorAt(spec.index * FINS + f, colour);
       }
-      mesh.setColorAt(spec.index, colour);
+
+      // --- front bezel LED -------------------------------------------------
+      dummy.position.set(cx, MODULE_H * 0.5 + state.lift, cz + MODULE_D / 2 + 0.012);
+      dummy.scale.set(1, 1, 1);
+      dummy.updateMatrix();
+      bezels.setMatrixAt(spec.index, dummy.matrix);
+
+      if (selected) {
+        colour.copy(COLOUR.amber);
+      } else if (lit) {
+        loadColour(colour, scan, (0.32 + scan * 0.1 + breathe * 0.04) * (hovered ? 1.4 : 1));
+      } else {
+        // A dark module is not a dead one — it is provisioned capacity that was
+        // never sold, so it keeps a dim standby glow rather than going black.
+        colour.setRGB(0.06, 0.07, 0.1).multiplyScalar(hovered ? 3 : 1);
+      }
+      bezels.setColorAt(spec.index, colour);
     }
 
-    mesh.instanceMatrix.needsUpdate = true;
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    for (const mesh of [body, fins, bezels]) {
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    }
   });
 
   return (
-    <instancedMesh
-      ref={meshRef}
-      args={[undefined, undefined, TILE_TOTAL]}
-      onPointerMove={(e) => {
-        e.stopPropagation();
-        if (e.instanceId !== undefined) onHover(e.instanceId);
-      }}
-      onPointerOut={() => onHover(null)}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (e.instanceId === undefined) return;
-        onSelect(e.instanceId === selectedIndex ? null : e.instanceId);
-      }}
-    >
-      <boxGeometry args={[TILE, 0.06, TILE]} />
-      {/* toneMapped off so the emissive colours reach the bloom pass at full strength */}
-      <meshBasicMaterial toneMapped={false} />
-    </instancedMesh>
+    <group>
+      {/* The package is the only pickable part; fins and bezels would other-
+          wise steal the hit and report their own instance ids. */}
+      <instancedMesh
+        ref={bodyRef}
+        args={[undefined, undefined, TILE_TOTAL]}
+        onPointerMove={(e) => {
+          e.stopPropagation();
+          if (e.instanceId !== undefined) onHover(e.instanceId);
+        }}
+        onPointerOut={() => onHover(null)}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (e.instanceId === undefined) return;
+          onSelect(e.instanceId === selectedIndex ? null : e.instanceId);
+        }}
+      >
+        <boxGeometry args={[MODULE_W, MODULE_H, MODULE_D]} />
+        <meshStandardMaterial metalness={0.86} roughness={0.42} />
+      </instancedMesh>
+
+      <instancedMesh ref={finRef} args={[undefined, undefined, FIN_TOTAL]} raycast={() => null}>
+        <boxGeometry args={[MODULE_W * 0.88, FIN_HEIGHT, FIN_THICKNESS]} />
+        <meshStandardMaterial metalness={0.95} roughness={0.24} />
+      </instancedMesh>
+
+      <instancedMesh ref={bezelRef} args={[undefined, undefined, TILE_TOTAL]} raycast={() => null}>
+        <boxGeometry args={[MODULE_W * 0.66, 0.032, 0.014]} />
+        {/* toneMapped off so the LED reaches the bloom pass at full strength */}
+        <meshBasicMaterial toneMapped={false} />
+      </instancedMesh>
+    </group>
   );
 }
 
-/** Amber outline drawn around the selected tile. */
+/** Amber outline drawn around the selected module. */
 function SelectionMarker({ index }: { index: number | null }) {
   const geometry = useMemo(
-    () => new THREE.EdgesGeometry(new THREE.BoxGeometry(TILE * 1.24, 0.26, TILE * 1.24)),
+    () =>
+      new THREE.EdgesGeometry(
+        new THREE.BoxGeometry(MODULE_W * 1.2, MODULE_H + FIN_HEIGHT + 0.1, MODULE_D * 1.3),
+      ),
     [],
   );
   if (index === null) return null;
@@ -245,7 +362,8 @@ function SelectionMarker({ index }: { index: number | null }) {
   return (
     <lineSegments
       geometry={geometry}
-      position={[spec.x, 0.13, spec.z]}
+      // Follows the module forward as it slides out of the tray.
+      position={[spec.x, (MODULE_H + FIN_HEIGHT) / 2 + 0.05, spec.z + 0.15]}
       raycast={() => null}
     >
       <lineBasicMaterial color="#ffb547" toneMapped={false} transparent opacity={0.95} />
@@ -253,28 +371,56 @@ function SelectionMarker({ index }: { index: number | null }) {
   );
 }
 
-/** The substrate the tiles sit on, plus its rim. */
-function Substrate() {
-  const width = COLUMNS * PITCH + 0.5;
-  const depth = ROWS * PITCH + 0.5;
-  const edges = useMemo(
-    () => new THREE.EdgesGeometry(new THREE.PlaneGeometry(width, depth)),
-    [width, depth],
+/**
+ * The four chassis trays the modules are seated in, and the machine-room floor
+ * beneath them. The trays are what turn eight modules in a line into a server.
+ */
+function Chassis() {
+  const trayWidth = (COLUMNS - 1) * COL_PITCH + MODULE_W + 0.34;
+  const trayDepth = MODULE_D + 0.3;
+  const floorWidth = trayWidth + 0.9;
+  const floorDepth = ROWS * ROW_PITCH + 0.7;
+
+  const originZ = (-(ROWS - 1) * ROW_PITCH) / 2;
+
+  const floorEdges = useMemo(
+    () => new THREE.EdgesGeometry(new THREE.PlaneGeometry(floorWidth, floorDepth)),
+    [floorWidth, floorDepth],
   );
+
   return (
-    <group position={[0, -0.06, 0]}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} raycast={() => null}>
-        <planeGeometry args={[width, depth]} />
-        <meshBasicMaterial color="#0a0d14" toneMapped={false} />
+    <group>
+      {/* machine-room floor */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.075, 0]} raycast={() => null}>
+        <planeGeometry args={[floorWidth, floorDepth]} />
+        <meshStandardMaterial color="#080b12" metalness={0.5} roughness={0.75} />
       </mesh>
       <lineSegments
-        geometry={edges}
+        geometry={floorEdges}
         rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, 0.002, 0]}
+        position={[0, -0.073, 0]}
         raycast={() => null}
       >
         <lineBasicMaterial color="#1d3a4a" toneMapped={false} />
       </lineSegments>
+
+      {Array.from({ length: ROWS }, (_, r) => {
+        const z = originZ + r * ROW_PITCH;
+        return (
+          <group key={r} position={[0, 0, z]}>
+            {/* tray pan */}
+            <mesh position={[0, -0.03, 0]} raycast={() => null}>
+              <boxGeometry args={[trayWidth, 0.06, trayDepth]} />
+              <meshStandardMaterial color="#10141d" metalness={0.8} roughness={0.5} />
+            </mesh>
+            {/* front rail, the face a rack unit presents to the aisle */}
+            <mesh position={[0, 0.02, trayDepth / 2 + 0.02]} raycast={() => null}>
+              <boxGeometry args={[trayWidth, 0.11, 0.04]} />
+              <meshStandardMaterial color="#161b26" metalness={0.85} roughness={0.4} />
+            </mesh>
+          </group>
+        );
+      })}
     </group>
   );
 }
@@ -294,8 +440,8 @@ function TokenStream({ internalShare, thermal }: { internalShare: number; therma
     const speeds = new Float32Array(PARTICLE_COUNT);
     const offsets = new Float32Array(PARTICLE_COUNT);
 
-    const spanX = COLUMNS * PITCH;
-    const spanZ = ROWS * PITCH;
+    const spanX = COLUMNS * COL_PITCH;
+    const spanZ = ROWS * ROW_PITCH;
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       positions[i * 3] = (Math.random() - 0.5) * spanX;
@@ -320,7 +466,7 @@ function TokenStream({ internalShare, thermal }: { internalShare: number; therma
     if (!points) return;
     const attr = points.geometry.attributes.position as THREE.BufferAttribute;
     const array = attr.array as Float32Array;
-    const spanX = COLUMNS * PITCH;
+    const spanX = COLUMNS * COL_PITCH;
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       array[i * 3] += speeds[i] * delta * (0.6 + thermal * 0.8);
@@ -454,7 +600,7 @@ export function GpuDie({
         setHoveredIndex(null);
       }}
     >
-      <fog attach="fog" args={['#07080c', 5.5, 11]} />
+      <fog attach="fog" args={['#07080c', 8, 17]} />
 
       <OrbitControls
         ref={controlsRef as never}
@@ -478,8 +624,19 @@ export function GpuDie({
       <CameraCommands controlsRef={controlsRef} zoomCommand={zoomCommand} resetSeq={resetSeq} />
       <AmbientOrbit active={!hasInteracted && !pointerInside && selectedIndex === null} />
 
-      <Substrate />
-      <Tiles
+      {/*
+        The chassis and heatsinks are metal, which needs light to read as metal:
+        a soft fill so nothing is pure black, a key from above front for the
+        specular run along the fin edges, and two coloured rims from the palette
+        that separate the hardware from the background without tinting it.
+      */}
+      <ambientLight intensity={0.8} color="#2f3a4e" />
+      <directionalLight position={[3.5, 7, 5.5]} intensity={2.1} color="#cfe0ff" />
+      <pointLight position={[-3.2, 1.8, -2.2]} intensity={9} distance={13} color="#8b7cff" />
+      <pointLight position={[2.8, 1.4, 3.2]} intensity={7} distance={11} color="#38e8ff" />
+
+      <Chassis />
+      <Modules
         utilisation={utilisation}
         thermal={thermal}
         selectedIndex={selectedIndex}
