@@ -1,0 +1,509 @@
+%=============================================================================
+%  TESSERA — Corporate Finance individual assignment
+%  Gagandeep Singh · Masters in Artificial Intelligence with Business
+%  SP Jain School of Global Management, Dubai
+%
+%  Compiles with pdfLaTeX on Overleaf. Upload the thirteen figures from the
+%  screenshots/ folder alongside this file (or into a screenshots/ subfolder).
+%=============================================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage[margin=2.4cm,top=2.6cm,bottom=2.6cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{eso-pic}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage[hidelinks]{hyperref}
+
+\graphicspath{{screenshots/}{figures/}{./}}
+
+%--- Single-line black border on every page ----------------------------------
+\AddToShipoutPictureBG{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \draw[line width=0.5pt]
+      ($(current page.north west)+(1.2cm,-1.2cm)$)
+      rectangle
+      ($(current page.south east)+(-1.2cm,1.2cm)$);
+  \end{tikzpicture}%
+}
+
+%--- Running footer ----------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\footnotesize Corporate Finance $\cdot$ Capital Budgeting and
+  Investment Decision $\cdot$ TESSERA \\[2pt] \thepage}
+
+\captionsetup{font=small,labelfont=bf,width=0.92\textwidth}
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{0pt}
+
+\newcommand{\aed}[1]{AED~#1}
+
+\begin{document}
+
+%=============================================================================
+%  TITLE PAGE
+%=============================================================================
+\begin{titlepage}
+\thispagestyle{empty}
+\centering
+\vspace*{2.6cm}
+
+{\scshape\large Corporate Finance}\\[0.5em]
+\rule{0.62\textwidth}{0.4pt}\\[2.4cm]
+
+{\Huge\bfseries TESSERA}\\[1.0em]
+
+{\large Capital Budgeting Report}\\[0.6em]
+
+{\itshape Should a studio own its intelligence, or keep renting it?}\\[2.2cm]
+
+{\itshape TESSERA: An AI-Enabled Capital Budgeting and Investment
+Decision Application}\\[2.6cm]
+
+{\bfseries Student}\\[0.7em]
+Gagandeep Singh\\[2.0cm]
+
+{\bfseries Instructor:} [Instructor Name]
+
+\vfill
+
+{\footnotesize Submitted for the partial fulfilment of the requirements of the
+Corporate Finance module of the Masters in Artificial Intelligence with
+Business.}
+
+\vspace*{0.8cm}
+\end{titlepage}
+
+%=============================================================================
+%  CONTENTS
+%=============================================================================
+\tableofcontents
+\newpage
+
+%=============================================================================
+\section{Company and Project Background}
+
+Meridian Frame Studios is a 34-person animation and visual-effects studio in
+Dubai Production City. Since 2024 its pipeline has depended on AI-assisted
+work---frame interpolation, denoising, upscaling and generative
+pre-visualisation---all running on rented GPU capacity billed by the hour. That
+line has grown into one of the studio's largest operating expenses, and it rises
+with every project won.
+
+The studio is therefore asking whether to stop renting compute and own it
+instead. The company is fictional, but every market parameter is calibrated to
+publicly observable rates for accelerator hardware, colocation and regional cloud
+pricing. The analysis is delivered as a working application, TESSERA, which
+computes every figure in this report from one verified engine
+(Figure~\ref{fig:hero}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{fig01_hero_cold_boot.png}
+  \caption{Landing view of the application. The cluster is bound to the model:
+  27 of 32 modules are lit because peak utilisation is 85\%, and the headline
+  figures are computed live rather than illustrated.}
+  \label{fig:hero}
+\end{figure}
+
+\section{Description of the Investment Decision}
+
+The decision is a mutually exclusive choice between four options over a
+five-year horizon:
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{clrl}
+\toprule
+& \textbf{Alternative} & \textbf{Outlay (AED)} & \textbf{Life} \\
+\midrule
+A & Own --- full 32-GPU cluster        & 7,060,000 & 5 years \\
+B & Rent --- 3-year reserved commitment &    45,000 & 3 years \\
+C & Hybrid --- own 16, burst to cloud   & 3,830,000 & 5 years \\
+--- & Do nothing --- continue on-demand & --- & --- \\
+\bottomrule
+\end{tabular}
+\caption{The alternatives under appraisal.}
+\end{table}
+
+Alternative A is the proposal on the table. The remaining options exist because a
+capital decision is only meaningful against the next-best use of the same money
+(Figure~\ref{fig:decision}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{fig03_decision_briefing.png}
+  \caption{The decision and the four alternatives as presented in the
+  application.}
+  \label{fig:decision}
+\end{figure}
+
+\section{Project Assumptions and Data Sources}
+
+Revenue is internal cost displacement plus external resale. Sixty per cent of
+utilised hours substitute for on-demand rental at \aed{20.20}/GPU-hour in year~1;
+the balance is resold regionally at \aed{14.70}. Both rates erode at 8\% a year,
+the rate implied by the last two hardware generations. Capacity is
+$32 \times 8{,}760$ hours at 96\% availability, utilised at 65\%, 80\%, 85\%,
+84\% and 78\%.
+
+The corporate tax rate is 9\%, the UAE federal rate. The discount rate is derived
+rather than assumed: an unlevered beta of 1.25 is relevered by the Hamada
+relation at the studio's 30\% debt weight,
+
+\[
+\beta_L = \beta_U\left[1 + (1-T)\frac{D}{E}\right] = 1.25\left[1 + 0.91 \times
+\tfrac{0.30}{0.70}\right] = 1.7375,
+\]
+
+giving a CAPM cost of equity of $4.3\% + 1.7375 \times 5.6\% + 2.0\% = 16.03\%$
+including a small-company premium, an after-tax cost of debt of 5.37\%, and
+
+\[
+\mathrm{WACC} = 0.70 \times 16.03\% + 0.30 \times 5.37\% = 12.83\%.
+\]
+
+All inputs are editable in the application (Figure~\ref{fig:assumptions}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{fig04_assumption_console.png}
+  \caption{The assumption console, including the derivation of the 12.83\%
+  hurdle rate.}
+  \label{fig:assumptions}
+\end{figure}
+
+\section{Relevant and Irrelevant Cash Flows}
+
+Only incremental, after-tax cash flows enter the appraisal. Relevant flows are
+the capital outlay, the displaced rental cost, external resale receipts, energy
+and bandwidth, colocation, the incremental MLOps engineer, insurance, the
+depreciation tax shield, salvage and working capital.
+
+Excluded as irrelevant are existing payroll and premises, unchanged by the
+decision; allocated head-office overhead, an accounting apportionment rather than
+an incremental outflow; and financing cash flows, since
+the cost of capital already carries the financing charge and deducting interest
+again would double-count it.
+
+\section{Treatment of Sunk Costs, Opportunity Costs, Working Capital,
+Depreciation, Taxes and Salvage Value}
+
+\textbf{Sunk cost.} A thermal and power feasibility study costing \aed{120{,}000}
+was paid in Q1~2026. The cash is gone whichever option is chosen, so it is
+excluded from all four alternatives.
+
+\textbf{Opportunity cost.} The studio owns the 45\,m\textsuperscript{2} technical
+room the cluster would occupy, so it carries no rent---but using it forfeits
+\aed{86{,}000} a year of sublease income, charged as a fixed cost to
+Alternatives A and C.
+
+\textbf{Working capital.} \aed{500{,}000} is committed at $t_0$ against resale
+receivables and spares, recovered in full at $t_5$, and not depreciated.
+
+\textbf{Depreciation.} Equipment and installation of \aed{6{,}560{,}000} are
+capitalised and written down straight-line over five years to a residual of
+\aed{1{,}054{,}800}---\aed{1{,}101{,}040} a year. Depreciation is not a cash flow;
+it enters only through the tax shield:
+\[
+\mathrm{OCF} = (R - C - D)(1 - T) + D.
+\]
+
+\textbf{Taxes and salvage.} Salvage is estimated at 18\% of original equipment
+cost, \aed{1{,}054{,}800}, exactly equal to closing book value---so the base case
+produces no disposal gain and no disposal tax. The application holds the
+depreciation estimate separate from realised salvage, so changing either produces
+a genuine taxable gain or loss rather than silently cancelling.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{fig05_cashflow_ledger.png}
+  \caption{Initial, annual operating and terminal cash flows.}
+  \label{fig:ledger}
+\end{figure}
+
+\section{Capital Budgeting Calculations and Results}
+
+The initial outlay is $-(5{,}860{,}000 + 700{,}000 + 500{,}000) =
+\aed{-7{,}060{,}000}$ (Figure~\ref{fig:ledger}). Discounting the resulting
+series at 12.83\%:
+
+\[
+\mathrm{NPV} = \sum_{t=0}^{5} \frac{CF_t}{(1+r)^t} = \aed{-51{,}476},
+\qquad
+\mathrm{PI} = \frac{PV_{\text{inflows}}}{PV_{\text{outflows}}}
+= \frac{7{,}008{,}524}{7{,}060{,}000} = 0.993.
+\]
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lr@{\hskip 2em}lr}
+\toprule
+\textbf{Measure} & \textbf{Value} & \textbf{Measure} & \textbf{Value} \\
+\midrule
+NPV @ 12.83\%        & \aed{$-$51{,}476} & Payback period      & 3.80 years \\
+IRR                  & 12.54\%         & Discounted payback    & never \\
+MIRR                 & 12.67\%         & ARR (avg.\ investment)& 15.65\% \\
+Profitability Index  & 0.993           & ARR (initial)         & 8.44\% \\
+\bottomrule
+\end{tabular}
+\caption{Decision metrics for Alternative A. Every measure fails, but narrowly.}
+\end{table}
+
+The NPV shortfall is 0.73\% of the outlay---inside the margin of error of the
+assumptions themselves. A decision this close cannot be settled by the base case
+(Figure~\ref{fig:metrics}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{fig06_metrics_grid.png}
+  \caption{Decision metrics with the runtime consistency checks that verify
+  them.}
+  \label{fig:metrics}
+\end{figure}
+
+Break-even analysis is decisive where the base case is not. Accounting
+break-even rises from 45.9\% to 77.5\% utilisation across the five years and cash
+break-even from 22.3\% to 43.9\%, but \emph{NPV} break-even requires 85.4\% peak
+utilisation against a plan of 85.0\%. The project needs the cluster to run
+essentially exactly as forecast, for five years, merely to be worth building
+(Figure~\ref{fig:breakeven}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{fig07_breakeven.png}
+  \caption{Cash, accounting and NPV break-even thresholds.}
+  \label{fig:breakeven}
+\end{figure}
+
+\section{Comparison of Investment Alternatives}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{clrrrrr}
+\toprule
+& \textbf{Alt} & \textbf{NPV (AED)} & \textbf{EAA (AED)} & \textbf{IRR} &
+\textbf{PI} & \textbf{Disc.\ payback} \\
+\midrule
+A & Own    & $-51{,}476$ & $-14{,}575$ & 12.54\%  & 0.993 & never \\
+B & Rent   & 693{,}082   & 292{,}697   & 440.45\% & 16.402\textsuperscript{*} & 0.39 yr \\
+C & Hybrid & \textbf{726{,}442} & 205{,}691 & 20.64\% & 1.190 & 4.14 yr \\
+\bottomrule
+\end{tabular}
+\caption{Alternatives compared. \textsuperscript{*}Alternative B employs almost
+no capital, so ratio measures are arithmetically large but economically
+meaningless; the application suppresses them.}
+\label{tab:compare}
+\end{table}
+
+Two complications underlie Table~\ref{tab:compare}. First,
+\textbf{unequal lives}:
+Alternative~B runs three years against five, so equivalent annual annuity,
+\[
+\mathrm{EAA} = \frac{\mathrm{NPV} \times r}{1-(1+r)^{-n}},
+\]
+is the correct adjustment---and it reverses the ranking, favouring B at
+\aed{292{,}697} against C's \aed{205{,}691}. Second, EAA assumes indefinite
+replication on identical terms, which for a locked price in a market falling 8\%
+a year does enormous work. Held for five years, the same commitment yields an NPV
+of \aed{553{,}267} and an EAA of \aed{156{,}656}---below Alternative~C.
+Alternative~B's advantage is real but self-liquidating. For mutually exclusive
+projects NPV governs, and \textbf{Alternative~C creates the most value}
+(Figures~\ref{fig:hybrid} and~\ref{fig:suppressed}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.86\textwidth]{fig12_metrics_hybrid.png}
+  \caption{Alternative C, the hybrid option, on the same measures.}
+  \label{fig:hybrid}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.86\textwidth]{fig13_ratio_metrics_suppressed.png}
+  \caption{Alternative B, with ratio metrics suppressed because the option
+  employs almost no capital.}
+  \label{fig:suppressed}
+\end{figure}
+
+\section{Sensitivity and Scenario Analysis}
+
+Each driver moves across its own plausible range rather than by a uniform
+percentage, because a blanket shock ranks drivers by the room they were given
+rather than by how uncertain they genuinely are. Utilisation is the widest,
+swinging NPV by \aed{2{,}985{,}394}. Its switching value is a utilisation factor
+of 1.005---five-tenths of one per cent above plan (Figure~\ref{fig:tornado}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{fig08_sensitivity_tornado.png}
+  \caption{Tornado chart, switching values and the two-way grid.}
+  \label{fig:tornado}
+\end{figure}
+
+All \textbf{nine of nine} drivers cross $\mathrm{NPV}=0$ inside their plausible
+range---including the corporate tax rate, the least contentious assumption in the
+model. That is not nine separate problems; it is one problem stated nine times.
+Crossing the two widest drivers produces 121 combinations, of which 88 (73\%) are
+loss-making. Scenario analysis gives a range from \aed{$-$4{,}073{,}264} to
+\aed{2{,}416{,}615}---a spread of 0.92 times the outlay, wider than the
+investment itself (Figure~\ref{fig:scenarios}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{fig09_scenario_triptych.png}
+  \caption{Best, base and worst case, with the resulting outcome range.}
+  \label{fig:scenarios}
+\end{figure}
+
+\section{Financial and Non-Financial Risks}
+
+The dominant financial risk is \textbf{price erosion}: the studio would buy a
+depreciating asset into a market whose price is falling 8\% a year, and the
+switching value is 7.73\%---the project fails if erosion is even slightly worse
+than assumed. \textbf{Utilisation risk} follows: five idle GPUs each carry
+\aed{205{,}000} of capital and \aed{42{,}469} of annual fixed cost against no
+revenue at all (Figure~\ref{fig:idle}). \textbf{Technology obsolescence} is
+acute, since a successor generation would compress both resale rates and salvage
+simultaneously.
+
+Non-financial risks include concentrating the entire platform on one incremental
+engineer, the absence of any signed resale customer, and the data-residency case
+for in-country capacity---a genuine strategic benefit the NPV does not capture.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{fig02_gpu_inspector_idle.png}
+  \caption{An idle GPU inspected: full capital and fixed-cost share against zero
+  revenue.}
+  \label{fig:idle}
+\end{figure}
+
+\section{AI-Generated Insights and Evaluation of Those Insights}
+
+The application embeds Claude (Opus~5) as an interpretive layer, deliberately
+constrained: the response schemas contain \emph{no numeric fields at all}, so the
+model receives verified figures as structured data and cannot introduce a number
+of its own. Its recommendation is displayed beside a deterministic, rule-based
+verdict computed in plain code from criteria fixed in advance, so the AI output
+has something independent to be measured against
+(Figures~\ref{fig:verdict} and~\ref{fig:comparison}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{fig10_ai_verdict_vs_rules.png}
+  \caption{Claude's recommendation beside the deterministic rule-based verdict.}
+  \label{fig:verdict}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{fig11_ai_comparison_explainer.png}
+  \caption{Claude comparing the alternatives, and the on-demand metric
+  explainer.}
+  \label{fig:comparison}
+\end{figure}
+
+The two disagree, which is the useful part. The rules return \textsc{review
+further} because Alternative~A's NPV falls inside their $\pm5\%$ marginal band;
+Claude returns \textsc{reject}. I judge Claude correct and the rules
+correct-but-irrelevant: the rules appraise Alternative~A in isolation, where
+``too close to call'' is honest, while the real decision is a choice among
+alternatives, and a better-scaled option for the same demand already exists.
+Claude's identification of break-even rather than NPV as the decisive statistic
+matches my own reading. I discount its confidence, however: it is confident about
+a ranking resting on the same contestable utilisation forecast as every other
+measure.
+
+\section{Final Investment Recommendation}
+
+\textbf{Reject Alternative A; adopt Alternative C.} Alternative~A fails every
+capital test, and its NPV break-even of 85.4\% against a plan of 85.0\% leaves no
+operational headroom whatsoever. Alternative~C serves the same underlying demand
+for \aed{3{,}830{,}000}, returns an NPV of \aed{726{,}442}, a PI of 1.190 and an
+IRR of 20.64\%, and works for the opposite reason: it buys only capacity that is
+structurally saturated and pays status-quo prices for the peak, where owning
+confers no advantage.
+
+Three conditions attach. Size the owned tranche to contracted or structurally
+always-on demand rather than to forecast peak; secure committed offtake from at
+least two regional clients before releasing capital for the resale-dependent
+portion; and set a review trigger so that observed erosion above 10\% a year
+forces re-appraisal before any second tranche.
+
+\section{Limitations of the Analysis}
+
+The model is deterministic. It reports a range but attaches no probabilities to
+it, and a Monte Carlo treatment would express the utilisation risk far better
+than three discrete cases. Correlations between drivers are imposed by
+judgement rather than estimated from data. Residual value beyond
+year five is set to salvage with no continuing value recognised, understating
+Alternative~A if the hardware remains serviceable. The resale market is assumed
+to exist at the rates modelled, and no customer has validated it. Finally, real options---the ability to defer, to stage the purchase
+or to abandon---carry genuine value that a static NPV cannot capture, and staging
+is precisely what Alternative~C represents.
+
+\section*{Verification}
+\addcontentsline{toc}{section}{Verification}
+
+Every figure was checked three ways: 69 unit tests whose expected values were
+derived by hand; an independent re-implementation of the whole model in Python
+against \texttt{numpy-financial}, agreeing on all 79 compared quantities; and 28
+runtime consistency checks. One genuine disagreement was found and fixed---the
+original solver returned no IRR for a non-conventional series because its
+bracketing had failed rather than because it had detected multiple roots. The
+solver now sweeps for every root; that series has two ($-37.79\%$ and
+$+439.01\%$), and the application reports both.
+
+\section*{Declaration of AI Tools Used}
+\addcontentsline{toc}{section}{Declaration of AI Tools Used}
+
+This project was built end to end using \textbf{Claude} (Anthropic) via Claude
+Code, which was used to write the application, the financial engine, the test
+suite and the independent Python verification, and to draft this report. Claude
+Opus~5 is additionally embedded in the delivered application as its advisory
+layer. No other large language model was used. All financial figures are computed
+by deterministic code and independently verified; the AI layer interprets those
+figures and cannot generate them. The final judgement, the choice of scenario, the
+assumption set and the recommendation are my own.
+
+\section*{References}
+\addcontentsline{toc}{section}{References}
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=0.2em]
+  \item Brealey, R.A., Myers, S.C. and Allen, F. (2023) \textit{Principles of
+    Corporate Finance}. 14th edn. New York: McGraw-Hill.
+  \item Ross, S.A., Westerfield, R.W. and Jaffe, J. (2022) \textit{Corporate
+    Finance}. 13th edn. New York: McGraw-Hill.
+  \item Damodaran, A. (2026) \textit{Betas by Sector} and \textit{Cost of Capital
+    by Industry}. NYU Stern School of Business. Available at:
+    \url{https://pages.stern.nyu.edu/~adamodar/}.
+  \item United Arab Emirates (2022) \textit{Federal Decree-Law No.\ 47 of 2022 on
+    the Taxation of Corporations and Businesses}. Ministry of Finance, UAE.
+  \item Hamada, R.S. (1972) `The effect of the firm's capital structure on the
+    systematic risk of common stocks', \textit{The Journal of Finance}, 27(2),
+    pp.\ 435--452.
+  \item Anthropic (2026) \textit{Claude Developer Documentation}. Available at:
+    \url{https://docs.anthropic.com/}.
+  \item Application source code and verification suite:
+    \url{https://github.com/gagu00000/tessera-capital-budgeting}.
+  \item Live application: \url{https://tessera-vert-nine.vercel.app}.
+\end{enumerate}
+
+\end{document}
