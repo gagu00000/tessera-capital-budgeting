@@ -177,7 +177,16 @@ h1, h2, h3, h4 {
 
 /* --------------------------------------------------------------------------
    Form controls
+
+   Declared inside @layer base for the same reason the component classes above
+   are layered: an unlayered rule beats every layered one regardless of
+   specificity, so a bare `input[type='number'] { width: 100% }` silently won
+   against Tailwind's `w-28` and there was no way to make a narrow input short
+   of !important. Inside `base`, the utility layer — which comes after it — can
+   override as expected.
    -------------------------------------------------------------------------- */
+
+@layer base {
 
 input[type='range'] {
   -webkit-appearance: none;
@@ -244,6 +253,8 @@ input[type='number']::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+} /* @layer base */
 
 /* --------------------------------------------------------------------------
    Scrollbar

@@ -41,6 +41,8 @@ interface ModelState {
   selectAlternative: (id: AlternativeId) => void;
   patchInputs: (patch: Partial<ProjectInputs>) => void;
   setUtilisation: (yearIndex: number, value: number) => void;
+  /** Edits one fixed-cost line's year-1 amount, by its index. */
+  setFixedCost: (componentIndex: number, year1Amount: number) => void;
   resetToBaseCase: () => void;
 }
 
@@ -69,6 +71,15 @@ export const useModelStore = create<ModelState>((set, get) => ({
       i === yearIndex ? value : u,
     );
     const inputs = { ...current, utilisationByYear };
+    set({ inputs, model: computeModel(inputs), isDirty: true });
+  },
+
+  setFixedCost: (componentIndex, year1Amount) => {
+    const current = get().inputs;
+    const fixedCostComponents = current.fixedCostComponents.map((c, i) =>
+      i === componentIndex ? { ...c, year1Amount } : c,
+    );
+    const inputs = { ...current, fixedCostComponents };
     set({ inputs, model: computeModel(inputs), isDirty: true });
   },
 

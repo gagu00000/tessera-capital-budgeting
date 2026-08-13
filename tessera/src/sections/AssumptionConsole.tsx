@@ -22,7 +22,7 @@ const ALTERNATIVE_TABS: { id: AlternativeId; label: string; tone: 'amber' | 'iri
 ];
 
 export function AssumptionConsole() {
-  const { inputs, model, activeId, isDirty, patchInputs, setUtilisation, selectAlternative, resetToBaseCase } =
+  const { inputs, model, activeId, isDirty, patchInputs, setUtilisation, setFixedCost, selectAlternative, resetToBaseCase } =
     useModelStore();
 
   const capacity = availableHoursPerYear(inputs);
@@ -267,23 +267,31 @@ export function AssumptionConsole() {
             </Field>
 
             <div>
-              <p className="mb-2 text-[0.78rem] text-slate-300">Fixed cost components</p>
+              <p className="mb-2 text-[0.78rem] text-slate-300">
+                Fixed cost components{' '}
+                <span className="text-[0.66rem] text-slate-500">· year-1 amounts, editable</span>
+              </p>
               <div className="space-y-1.5">
-                {inputs.fixedCostComponents.map((c) => (
+                {inputs.fixedCostComponents.map((c, i) => (
                   <div
                     key={c.label}
-                    className="flex items-start justify-between gap-3 rounded-lg bg-black/20 px-3 py-2"
+                    className="flex items-center justify-between gap-3 rounded-lg bg-black/20 px-3 py-2"
                   >
-                    <div className="min-w-0">
-                      <p className="truncate text-[0.72rem] text-slate-300">{c.label}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[0.72rem] leading-snug text-slate-300">{c.label}</p>
                       <p className="text-[0.62rem] text-slate-500">
                         {c.startYear > 1 ? `From year ${c.startYear}` : 'From year 1'}
                         {c.isOpportunityCost && ' · opportunity cost'}
                       </p>
                     </div>
-                    <span className="numeric shrink-0 text-[0.74rem] text-slate-200">
-                      {money(c.year1Amount)}
-                    </span>
+                    <input
+                      type="number"
+                      aria-label={`${c.label} — year 1 amount`}
+                      className="w-28 shrink-0 text-right"
+                      value={c.year1Amount}
+                      step={5_000}
+                      onChange={(e) => setFixedCost(i, Number(e.target.value))}
+                    />
                   </div>
                 ))}
               </div>
